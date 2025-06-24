@@ -257,19 +257,16 @@
   document.addEventListener('DOMContentLoaded', function() {
     // Mise à jour du temps écoulé pour le pointage en cours
     @if($pointageEnCours)
-      // Approche radicalement simplifiée pour calculer la durée du pointage
+      // Calculer la durée du pointage en cours en utilisant l'heure réelle de début
       const dureeElement = document.getElementById('duree-pointage');
       
-      // Forcer l'affichage initial à 00h00
-      dureeElement.textContent = '00h00';
-      
-      // Stocker l'heure de démarrage du script
-      const scriptStartTime = new Date();
+      // Récupérer l'heure de début du pointage depuis le serveur (format ISO)
+      const pointageStartTime = new Date('{{ $pointageEnCours->heure_entree->toIso8601String() }}');
       
       function updateDuree() {
-        // Calculer la durée depuis le démarrage du script
+        // Calculer la durée depuis l'heure réelle de début du pointage
         const now = new Date();
-        const elapsedMs = now - scriptStartTime;
+        const elapsedMs = now - pointageStartTime;
         const elapsedMinutes = Math.floor(elapsedMs / 60000);
         const hours = Math.floor(elapsedMinutes / 60);
         const minutes = elapsedMinutes % 60;
