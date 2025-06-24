@@ -79,102 +79,75 @@
 
 <!-- Statistiques globales -->
 <div class="row">
-  <div class="col-md-6 col-lg-3 mb-4">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <div class="d-flex justify-content-between">
-          <div>
-            <h5 class="card-title mb-0">Véhicules</h5>
-            <small class="text-muted">Nombre total en stock</small>
-          </div>
-          <div class="avatar bg-light-primary rounded">
-            <div class="avatar-content">
-              <i class="bx bx-car font-medium-4 text-primary"></i>
+    <!-- Véhicules -->
+    <div class="col-md-3 col-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div class="content-left">
+                        <span class="fw-medium d-block mb-1">Véhicules</span>
+                        <div class="d-flex align-items-center mt-1">
+                            <h4 class="mb-0 me-2">{{ $stats['vehicules'] ?? 0 }}</h4>
+                        </div>
+                        <small class="text-muted">Nombre total en stock</small>
+                    </div>
+                    <span class="badge bg-label-primary rounded p-2">
+                        <i class="bx bx-car bx-sm"></i>
+                    </span>
+                </div>
             </div>
-          </div>
         </div>
-        <h2 class="fw-bolder mt-2">
-          {{ isset($stats['total_vehicules']) ? $stats['total_vehicules'] : '0' }}
-        </h2>
-        <div class="d-flex align-items-center mt-1">
-          <i class="bx bx-info-circle text-primary me-1"></i>
-          <small>Tous les véhicules sont disponibles</small>
-        </div>
-      </div>
     </div>
-  </div>
+
+    <!-- Employés -->
+    <div class="col-md-3 col-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div class="content-left">
+                        <span class="fw-medium d-block mb-1">Employés</span>
+                        <div class="d-flex align-items-center mt-1">
+                            <h4 class="mb-0 me-2">{{ $stats['employes_actifs'] ?? 0 }} / {{ $stats['employes_total'] ?? 0 }}</h4>
+                        </div>
+                        <small class="text-muted">Actifs / Total</small>
+                    </div>
+                    <span class="badge bg-label-success rounded p-2">
+                        <i class="bx bx-group bx-sm"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top vendeurs -->
+    <div class="col-md-3 col-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div class="content-left">
+                        <span class="fw-medium d-block mb-1">Top vendeurs</span>
+                        <div class="d-flex align-items-center mt-1">
+                            <h4 class="mb-0 me-2">{{ $stats['top_vendeurs'] ?? 'N/A' }}</h4>
+                        </div>
+                        <small class="text-muted">Cette semaine</small>
+                    </div>
+                    <span class="badge bg-label-success rounded p-2">
+                        <i class="bx bx-user-check bx-sm"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bénéfices globaux -->
   
   <div class="col-md-6 col-lg-3 mb-4">
     <div class="card shadow-sm">
       <div class="card-body">
         <div class="d-flex justify-content-between">
           <div>
-            <h5 class="card-title mb-0">Employés</h5>
-            <small class="text-muted">Actifs / Total</small>
-          </div>
-          <div class="avatar bg-light-success rounded">
-            <div class="avatar-content">
-              <i class="bx bx-user-check font-medium-4 text-success"></i>
-            </div>
-          </div>
-        </div>
-        <h2 class="fw-bolder mt-2">
-          {{ isset($stats['active_employees']) ? $stats['active_employees'] : '0' }} / {{ isset($stats['total_employees']) ? $stats['total_employees'] : '0' }}
-        </h2>
-        <div class="progress progress-bar-success mt-2" style="height: 6px">
-          <div class="progress-bar bg-success" 
-               role="progressbar" 
-               style="width: {{ isset($stats['active_employees']) && isset($stats['total_employees']) && $stats['total_employees'] > 0 ? ($stats['active_employees'] / $stats['total_employees']) * 100 : 0 }}%" 
-               aria-valuenow="{{ isset($stats['active_employees']) ? $stats['active_employees'] : '0' }}" 
-               aria-valuemin="0" 
-               aria-valuemax="{{ isset($stats['total_employees']) ? $stats['total_employees'] : '0' }}"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="col-md-6 col-lg-3 mb-4">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <div class="d-flex justify-content-between">
-          <div>
-            <h5 class="card-title mb-0">Top vendeurs</h5>
-            <small class="text-muted">Cette semaine</small>
-          </div>
-          <div class="avatar bg-light-success rounded">
-            <div class="avatar-content">
-              <i class="bx bx-user-check font-medium-4 text-success"></i>
-            </div>
-          </div>
-        </div>
-        @if(isset($stats['top_vendeur']) && $stats['top_vendeur'])
-        <div class="d-flex align-items-center mt-2">
-          <div class="avatar me-2">
-            <span class="avatar-content bg-light-primary">
-              <i class="bx bx-user text-primary"></i>
-            </span>
-          </div>
-          <div>
-            <h5 class="mb-0">{{ $stats['top_vendeur']->nom ?? 'N/A' }}</h5>
-            <small>{{ isset($stats['top_vendeur_commandes']) ? $stats['top_vendeur_commandes'] . ' commandes' : 'Aucune commande' }}</small>
-          </div>
-        </div>
-        @else
-        <div class="d-flex align-items-center justify-content-center mt-3">
-          <p class="text-muted mb-0">Aucune donnée disponible</p>
-        </div>
-        @endif
-      </div>
-    </div>
-  </div>
-  
-  <div class="col-md-6 col-lg-3 mb-4">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <div class="d-flex justify-content-between">
-          <div>
-            <h5 class="card-title mb-0">Commissions & Bénéfices</h5>
-            <small class="text-muted">Mois en cours</small>
+            <h5 class="card-title mb-0">Bénéfices globaux</h5>
+            <small class="text-muted">Objectif global entreprise</small>
           </div>
           <div class="avatar bg-light-warning rounded">
             <div class="avatar-content">
@@ -188,12 +161,12 @@
         <div class="progress progress-bar-warning mt-2" style="height: 6px">
           <div class="progress-bar bg-warning" 
                role="progressbar" 
-               style="width: {{ isset($stats['total_commissions']) && isset($stats['objectif_commission']) && $stats['objectif_commission'] > 0 ? min(100, ($stats['total_commissions'] / $stats['objectif_commission']) * 100) : 0 }}%" 
+               style="width: {{ isset($stats['total_commissions']) && isset($stats['objectif_benefice']) && $stats['objectif_benefice'] > 0 ? min(100, ($stats['total_commissions'] / $stats['objectif_benefice']) * 100) : 0 }}%" 
                aria-valuenow="{{ isset($stats['total_commissions']) ? $stats['total_commissions'] : '0' }}" 
                aria-valuemin="0" 
-               aria-valuemax="{{ isset($stats['objectif_commission']) ? $stats['objectif_commission'] : '50000' }}"></div>
+               aria-valuemax="{{ isset($stats['objectif_benefice']) ? $stats['objectif_benefice'] : '100000' }}"></div>
         </div>
-        <small>{{ isset($stats['total_commissions']) ? number_format($stats['total_commissions'], 0, ',', ' ') : '0' }} € / {{ isset($stats['objectif_commission']) ? number_format($stats['objectif_commission'], 0, ',', ' ') : '50 000' }} €</small>
+        <small>{{ isset($stats['total_commissions']) ? number_format($stats['total_commissions'], 0, ',', ' ') : '0' }} € / {{ isset($stats['objectif_benefice']) ? number_format($stats['objectif_benefice'], 0, ',', ' ') : '100 000' }} € (objectif global)</small>
       </div>
     </div>
   </div>

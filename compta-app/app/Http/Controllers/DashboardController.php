@@ -266,8 +266,6 @@ class DashboardController extends Controller
             'benefice_total' => $benefice_total,
             'objectif_benefice' => $objectif_benefice,
             'objectif_ventes' => $objectifs->objectif_ventes,
-            'objectif_vehicules' => $objectifs->objectif_vehicules,
-            'objectif_commission' => $objectifs->objectif_commission,
             'benefice_semaine' => $benefice_semaine,
             'total_commissions' => $commissions_mois,
             
@@ -413,9 +411,8 @@ class DashboardController extends Controller
                 ];
             })->toArray();
         
-        // Récupérer les employés récents
-        $derniers_employes = User::whereNotNull('statut')
-            ->where('statut', '!=', '')
+        // Récupérer les employés récents (exclure les administrateurs)
+        $derniers_employes = User::employesOnly()
             ->latest('created_at')
             ->take(5)
             ->get();

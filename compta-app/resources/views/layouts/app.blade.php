@@ -44,6 +44,9 @@
 
     <!-- Icons. Uncomment required icon fonts -->
     <link rel="stylesheet" href="{{ asset('sneat-1.0.0/assets/vendor/fonts/boxicons.css') }}" />
+    
+    <!-- Theme Switcher Script (chargé en priorité) -->
+    <script src="{{ asset('js/theme-switcher.js') }}?v={{ time() }}"></script>
 
     <!-- Core CSS -->
     <link rel="stylesheet" href="{{ asset('sneat-1.0.0/assets/vendor/css/core.css') }}" class="template-customizer-core-css" />
@@ -135,15 +138,16 @@
     <script src="{{ asset('sneat-1.0.0/assets/js/main.js') }}"></script>
 
     <!-- Page JS -->
-    <script src="{{ asset('js/theme-switcher.js') }}"></script>
     @stack('scripts')
 
     <script>
       // Script d'initialisation
       document.addEventListener('DOMContentLoaded', function() {
         try {
-          // Initialiser le menu
-          window.Helpers.initMenu();
+          // Initialiser le menu si la fonction existe
+          if (window.Helpers && typeof window.Helpers.initMenu === 'function') {
+            window.Helpers.initMenu();
+          }
           
           // Initialiser les tooltips Bootstrap
           var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -189,5 +193,7 @@
         }
       });
     </script>
+
+    <!-- Scripts chargés avec succès -->
   </body>
 </html>

@@ -2,6 +2,18 @@
 
 @section('title', 'Badgeuse - Pointages')
 
+@section('styles')
+<style>
+  /* Style pour éviter le flash visuel lors du clic sur les boutons de badgeage */
+  .no-flash:active, .no-flash:focus {
+    transition: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+    opacity: 0.9 !important;
+  }
+</style>
+@endsection
+
 @section('content')
 <div class="row">
   <div class="col-12">
@@ -38,14 +50,14 @@
                     @if($pointageEnCours)
                       <form action="{{ route('pointages.sortie') }}" method="POST">
                         @csrf
-                        <button type="submit" class="btn btn-danger">
+                        <button type="submit" class="btn btn-danger no-flash">
                           <i class="bx bx-log-out me-1"></i> Badger sortie
                         </button>
                       </form>
                     @else
                       <form action="{{ route('pointages.entree') }}" method="POST">
                         @csrf
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary no-flash">
                           <i class="bx bx-log-in me-1"></i> Badger entrée
                         </button>
                       </form>
@@ -239,41 +251,6 @@
   </div>
 </div>
 @endsection
-
-<!-- Modal d'édition des pointages -->
-<div class="modal fade" id="editPointageModal" tabindex="-1" aria-labelledby="editPointageModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editPointageModalLabel">Corriger un pointage</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form id="edit-pointage-form" method="POST" action="">
-        @csrf
-        @method('PUT')
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="heure_entree" class="form-label">Heure d'entrée</label>
-            <input type="datetime-local" class="form-control" id="heure_entree" name="heure_entree" required>
-          </div>
-          <div class="mb-3">
-            <label for="heure_sortie" class="form-label">Heure de sortie</label>
-            <input type="datetime-local" class="form-control" id="heure_sortie" name="heure_sortie">
-            <small class="text-muted">Laissez vide si le pointage est en cours</small>
-          </div>
-          <div class="mb-3">
-            <label for="commentaire" class="form-label">Commentaire</label>
-            <textarea class="form-control" id="commentaire" name="commentaire" rows="3"></textarea>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-          <button type="submit" class="btn btn-primary">Enregistrer</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 
 @push('scripts')
 <script>

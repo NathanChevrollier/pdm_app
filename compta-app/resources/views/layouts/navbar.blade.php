@@ -45,12 +45,7 @@
     <!-- /Titre et Info -->
 
     <ul class="navbar-nav flex-row align-items-center">
-      <!-- Theme Toggler -->
-      <li class="nav-item me-2">
-        <a class="nav-link style-switcher-toggle hide-arrow" href="javascript:void(0);" id="theme-toggle">
-          <i class="bx bx-moon bx-sm"></i>
-        </a>
-      </li>
+          <!-- Bouton de thème supprimé car non fonctionnel -->
       <!-- User Menu -->
       <li class="nav-item navbar-dropdown dropdown-user dropdown">
         <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">

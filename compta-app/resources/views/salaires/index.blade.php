@@ -87,7 +87,7 @@
                         <i class="bx bx-info-circle me-2 mt-1"></i>
                         <div>
                             <strong>Objectifs globaux de l'entreprise</strong><br>
-                            Ces objectifs servent de référence pour les objectifs personnels de chaque vendeur.
+                            Ces objectifs représentent les cibles collectives pour toute l'équipe, et non des objectifs individuels. Ils visent à encourager la collaboration plutôt que la compétition.
                         </div>
                     </div>
                 </div>

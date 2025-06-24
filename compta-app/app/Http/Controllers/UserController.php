@@ -466,8 +466,6 @@ class UserController extends Controller
             'benefice' => $beneficeTotal,
             'commission' => $commission,
             'objectif_ventes' => $objectifs->objectif_ventes,
-            'objectif_vehicules' => $objectifs->objectif_vehicules,
-            'objectif_commission' => $objectifs->objectif_commission,
             'objectif_benefice' => $objectifs->objectif_benefice,
             'historique' => $historiqueVentes
         ];

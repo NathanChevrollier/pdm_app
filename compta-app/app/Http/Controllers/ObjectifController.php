@@ -23,8 +23,6 @@ class ObjectifController extends Controller
         // Valider les données
         $validated = $request->validate([
             'objectif_ventes' => 'required|numeric|min:0',
-            'objectif_vehicules' => 'required|integer|min:0',
-            'objectif_commission' => 'required|numeric|min:0',
             'objectif_benefice' => 'required|numeric|min:0',
         ]);
 
@@ -34,8 +32,6 @@ class ObjectifController extends Controller
         // Mettre à jour les objectifs
         $objectifs->update([
             'objectif_ventes' => $validated['objectif_ventes'],
-            'objectif_vehicules' => $validated['objectif_vehicules'],
-            'objectif_commission' => $validated['objectif_commission'],
             'objectif_benefice' => $validated['objectif_benefice'],
         ]);
 
@@ -58,16 +54,12 @@ class ObjectifController extends Controller
         // Valider les données
         $validated = $request->validate([
             'objectif_ventes' => 'required|numeric|min:0',
-            'objectif_vehicules' => 'required|integer|min:0',
-            'objectif_commission' => 'required|numeric|min:0',
         ]);
 
         // Mettre à jour les objectifs de l'employé
         $employe = User::findOrFail($userId);
         $employe->update([
             'objectif_ventes' => $validated['objectif_ventes'],
-            'objectif_vehicules' => $validated['objectif_vehicules'],
-            'objectif_commission' => $validated['objectif_commission'],
         ]);
 
         // Rediriger avec un message de succès

@@ -101,7 +101,7 @@
             <div class="card-header d-flex align-items-center justify-content-between pb-0">
                 <div class="card-title mb-0">
                     <h5 class="m-0 me-2">Mes ventes</h5>
-                    <small class="text-muted">Semaine en cours</small>
+                    <small class="text-muted">Semaine en cours (Objectif global entreprise)</small>
                 </div>
             </div>
             <div class="card-body pt-3">
@@ -127,72 +127,70 @@
                 <div class="progress" style="height: 6px;">
                     <div class="progress-bar bg-primary" style="width: {{ min(($stats['ventes'] ?? 0) / ($stats['objectif_ventes'] ?? 500000) * 100, 100) }}%" role="progressbar" aria-valuenow="{{ min(($stats['ventes'] ?? 0) / ($stats['objectif_ventes'] ?? 500000) * 100, 100) }}" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
-                <small>{{ number_format(($stats['ventes'] ?? 0), 0, ',', ' ') }} € / {{ number_format(($stats['objectif_ventes'] ?? 500000), 0, ',', ' ') }} €</small>
+                <small>{{ number_format(($stats['ventes'] ?? 0), 0, ',', ' ') }} € / {{ number_format(($stats['objectif_ventes'] ?? 500000), 0, ',', ' ') }} € (objectif global)</small>
                 <small class="text-muted">Comparé à la semaine précédente</small>
             </div>
         </div>
     </div>
-
-    <!-- Nombre de véhicules vendus -->
+    
+    <!-- Bénéfices globaux -->
     <div class="col-md-4 mb-4">
         <div class="card h-100">
             <div class="card-header d-flex align-items-center justify-content-between pb-0">
                 <div class="card-title mb-0">
-                    <h5 class="m-0 me-2">Véhicules vendus</h5>
-                    <small class="text-muted">Semaine en cours</small>
+                    <h5 class="m-0 me-2">Bénéfices globaux</h5>
+                    <small class="text-muted">Objectif global entreprise</small>
                 </div>
-                <!-- Menu supprimé -->
             </div>
             <div class="card-body pt-3">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex flex-column align-items-start gap-1">
-                        <h2 class="mb-0">{{ $stats['nb_vehicules'] ?? 0 }}</h2>
-                        <span class="badge bg-label-info">Unités</span>
-                    </div>
-                    <div class="avatar">
-                        <div class="avatar-initial rounded bg-label-info">
-                            <i class="bx bx-car bx-sm"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-info" style="width: {{ min(($stats['nb_vehicules'] ?? 0) / ($stats['objectif_vehicules'] ?? 20) * 100, 100) }}%" role="progressbar" aria-valuenow="{{ min(($stats['nb_vehicules'] ?? 0) / ($stats['objectif_vehicules'] ?? 20) * 100, 100) }}" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <small>{{ ($stats['nb_vehicules'] ?? 0) }} / {{ ($stats['objectif_vehicules'] ?? 20) }} véhicules</small>
-            </div>
-        </div>
-    </div>
-
-    <!-- Commission estimée -->
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <div class="card-header d-flex align-items-center justify-content-between pb-0">
-                <div class="card-title mb-0">
-                    <h5 class="m-0 me-2">Ma commission</h5>
-                    <small class="text-muted">Semaine en cours</small>
-                </div>
-                <!-- Menu supprimé -->
-            </div>
-            <div class="card-body pt-3">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="d-flex flex-column align-items-start gap-1">
-                        <h2 class="mb-0">{{ number_format($stats['commission'] ?? 0, 2, ',', ' ') }} €</h2>
-                        @if($employe->commission > 0)
-                            <span class="badge bg-label-success">{{ number_format($employe->commission, 1) }}% du bénéfice</span>
-                        @else
-                            <span class="badge bg-label-success">{{ number_format($employe->getTauxCommission() * 100, 1) }}% du bénéfice</span>
-                        @endif
+                        <h2 class="mb-0">{{ number_format($stats['benefice'] ?? 0, 2, ',', ' ') }} €</h2>
                     </div>
                     <div class="avatar">
                         <div class="avatar-initial rounded bg-label-success">
-                            <i class="bx bx-money bx-sm"></i>
+                            <i class="bx bx-dollar bx-sm"></i>
                         </div>
                     </div>
                 </div>
                 <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-success" style="width: {{ min(($stats['commission'] ?? 0) / ($stats['objectif_commission'] ?? 50000) * 100, 100) }}%" role="progressbar" aria-valuenow="{{ min(($stats['commission'] ?? 0) / ($stats['objectif_commission'] ?? 50000) * 100, 100) }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar bg-success" style="width: {{ min(($stats['benefice'] ?? 0) / ($stats['objectif_benefice'] ?? 100000) * 100, 100) }}%" role="progressbar" aria-valuenow="{{ min(($stats['benefice'] ?? 0) / ($stats['objectif_benefice'] ?? 100000) * 100, 100) }}" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
-                <small>{{ number_format(($stats['commission'] ?? 0), 0, ',', ' ') }} € / {{ number_format(($stats['objectif_commission'] ?? 50000), 0, ',', ' ') }} €</small>
+                <small>{{ number_format(($stats['benefice'] ?? 0), 0, ',', ' ') }} € / {{ number_format(($stats['objectif_benefice'] ?? 100000), 0, ',', ' ') }} € (objectif global)</small>
+                <small class="text-muted">Contribution aux objectifs de l'entreprise</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Performance d'équipe -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center justify-content-between pb-0">
+                <div class="card-title mb-0">
+                    <h5 class="m-0 me-2">Performance d'équipe</h5>
+                    <small class="text-muted">Collaboration et entraide</small>
+                </div>
+            </div>
+            <div class="card-body pt-3">
+                <div class="alert alert-info">
+                    <div class="d-flex">
+                        <i class="bx bx-group fs-3 me-2"></i>
+                        <div>
+                            <p class="mb-0">Les objectifs sont collectifs et visent à encourager la collaboration entre tous les membres de l'équipe.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div>
+                        <h6 class="mb-0">Esprit d'équipe</h6>
+                        <small>Travaillons ensemble pour atteindre nos objectifs communs</small>
+                    </div>
+                    <div class="avatar">
+                        <div class="avatar-initial rounded bg-label-info">
+                            <i class="bx bx-line-chart bx-sm"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -263,27 +261,7 @@
                     <small class="text-muted">Objectif: 100 000 €</small>
                 </div>
                 
-                <div class="mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="mb-0">Véhicules vendus</h6>
-                        <small>{{ min(($stats['nb_vehicules'] ?? 0) / 10 * 100, 100) }}%</small>
-                    </div>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-info" style="width: {{ min(($stats['nb_vehicules'] ?? 0) / 10 * 100, 100) }}%" role="progressbar" aria-valuenow="{{ min(($stats['nb_vehicules'] ?? 0) / 10 * 100, 100) }}" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <small class="text-muted">Objectif: 10 véhicules</small>
-                </div>
-                
-                <div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="mb-0">Commission</h6>
-                        <small>{{ number_format(($stats['commission'] ?? 0) / 5000 * 100, 1) }}%</small>
-                    </div>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-success" style="width: {{ min(($stats['commission'] ?? 0) / 5000 * 100, 100) }}%" role="progressbar" aria-valuenow="{{ min(($stats['commission'] ?? 0) / 5000 * 100, 100) }}" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <small class="text-muted">Objectif: 5 000 €</small>
-                </div>
+                <!-- Les objectifs de véhicules vendus et commissions ont été supprimés -->
             </div>
         </div>
     </div>

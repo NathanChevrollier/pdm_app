@@ -185,4 +185,28 @@ class User extends Authenticatable
         
         return in_array($this->statut, $statuts);
     }
+    
+    /**
+     * Scope pour exclure les administrateurs des requêtes
+     * 
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeExcludeAdmin($query)
+    {
+        return $query->where('statut', '!=', 'admin');
+    }
+    
+    /**
+     * Scope pour récupérer uniquement les employés (non-administrateurs)
+     * 
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeEmployesOnly($query)
+    {
+        return $query->whereNotNull('statut')
+                     ->where('statut', '!=', '')
+                     ->where('statut', '!=', 'admin');
+    }
 }

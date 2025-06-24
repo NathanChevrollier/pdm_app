@@ -127,7 +127,7 @@ class SalaireController extends Controller
      */
     public function create(): View
     {
-        $employes = User::whereNotNull('statut')->get();
+        $employes = User::employesOnly()->get(); // Exclure les administrateurs
         return view('salaires.create', compact('employes'));
     }
 
@@ -205,8 +205,8 @@ class SalaireController extends Controller
         $startOfWeek = $date->copy()->startOfWeek();
         $endOfWeek = $date->copy()->endOfWeek();
         
-        // Récupérer tous les employés avec leurs commandes de la semaine
-        $employes = User::whereNotNull('statut')->get();
+        // Récupérer tous les employés avec leurs commandes de la semaine (exclure les administrateurs)
+        $employes = User::employesOnly()->get();
         $count = 0;
         
         foreach ($employes as $employe) {

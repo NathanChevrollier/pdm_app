@@ -55,7 +55,7 @@ class PointageController extends Controller
         $employes = [];
         
         if ($isManager) {
-            $employes = User::whereNotNull('statut')->get();
+            $employes = User::employesOnly()->get(); // Exclure les administrateurs
             
             foreach ($employes as $employe) {
                 $pointagesEmployes[$employe->id] = Pointage::getPointagesSemaine($employe->id, $startOfWeek, $endOfWeek);
