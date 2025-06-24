@@ -32,7 +32,7 @@ class Commande extends Model
     ];
 
     protected $casts = [
-        'date_commande' => 'date',
+        'date_commande' => 'datetime',
         'reduction_pourcentage' => 'decimal:2',
         'prix_final' => 'decimal:2',
     ];

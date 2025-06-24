@@ -14,8 +14,8 @@ class ObjectifController extends Controller
      */
     public function update(Request $request)
     {
-        // Vérifier les permissions (seuls admin, gérant, co-gérant et manager peuvent modifier les objectifs)
-        if (!auth()->user() || !in_array(auth()->user()->statut, ['admin', 'gerant', 'co-gerant', 'manager'])) {
+        // Vérifier les permissions (seuls admin, gérant, co-gérant peuvent modifier les objectifs)
+        if (!auth()->user() || !in_array(auth()->user()->statut, ['admin', 'gerant', 'co-gerant'])) {
             return redirect()->back()
                 ->with('error', 'Vous n\'avez pas les permissions nécessaires pour effectuer cette action.');
         }
@@ -23,16 +23,25 @@ class ObjectifController extends Controller
         // Valider les données
         $validated = $request->validate([
             'objectif_ventes' => 'required|numeric|min:0',
+            'objectif_vehicules' => 'required|integer|min:0',
+            'objectif_commission' => 'required|numeric|min:0',
             'objectif_benefice' => 'required|numeric|min:0',
         ]);
 
-        // Stocker les objectifs dans la session
-        session(['objectif_ventes' => $validated['objectif_ventes']]);
-        session(['objectif_benefice' => $validated['objectif_benefice']]);
+        // Récupérer ou créer les objectifs globaux
+        $objectifs = Objectif::getActiveObjectifs();
+        
+        // Mettre à jour les objectifs
+        $objectifs->update([
+            'objectif_ventes' => $validated['objectif_ventes'],
+            'objectif_vehicules' => $validated['objectif_vehicules'],
+            'objectif_commission' => $validated['objectif_commission'],
+            'objectif_benefice' => $validated['objectif_benefice'],
+        ]);
 
         // Rediriger avec un message de succès
-        return redirect()->route('salaires.index')
-            ->with('success', 'Les objectifs ont été mis à jour avec succès.');
+        return redirect()->route('dashboard')
+            ->with('success', 'Les objectifs globaux ont été mis à jour avec succès.');
     }
 
     /**

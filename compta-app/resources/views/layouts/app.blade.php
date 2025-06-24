@@ -38,7 +38,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Montserrat:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
 
@@ -48,6 +48,7 @@
     <!-- Core CSS -->
     <link rel="stylesheet" href="{{ asset('sneat-1.0.0/assets/vendor/css/core.css') }}" class="template-customizer-core-css" />
     <link rel="stylesheet" href="{{ asset('sneat-1.0.0/assets/vendor/css/theme-default.css') }}" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="{{ asset('sneat-1.0.0/assets/vendor/css/themes/theme-dark.css') }}" class="template-customizer-theme-css" id="theme-dark-style" disabled />
     <link rel="stylesheet" href="{{ asset('sneat-1.0.0/assets/css/demo.css') }}" />
 
     <!-- Vendors CSS -->
@@ -134,6 +135,7 @@
     <script src="{{ asset('sneat-1.0.0/assets/js/main.js') }}"></script>
 
     <!-- Page JS -->
+    <script src="{{ asset('js/theme-switcher.js') }}"></script>
     @stack('scripts')
 
     <script>
@@ -180,6 +182,8 @@
               }
             }
           });
+          
+          // Le gestionnaire de thème est maintenant dans un fichier séparé
         } catch (error) {
           console.error('Erreur lors de l\'initialisation des composants:', error);
         }

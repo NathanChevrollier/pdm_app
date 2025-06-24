@@ -30,7 +30,9 @@ class CommandeController extends Controller
         $employes = User::all();
         // Récupérer tous les véhicules pour la création de commande
         $vehicules = Vehicule::all();
-        return view('commandes.create', compact('employes', 'vehicules'));
+        // Utilisateur connecté pour pré-remplir le champ vendeur
+        $utilisateurConnecte = auth()->user();
+        return view('commandes.create', compact('employes', 'vehicules', 'utilisateurConnecte'));
     }
 
     /**
@@ -38,17 +40,30 @@ class CommandeController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Si l'utilisateur n'est pas admin ou gérant, on force l'ID de l'utilisateur connecté
+        if (!auth()->user()->isAdmin() && auth()->user()->statut !== 'gerant' && auth()->user()->statut !== 'co-gerant') {
+            $request->merge(['user_id' => auth()->id()]);
+        }
+        
         $validated = $request->validate([
             'nom_client' => 'required|string|max:255',
             'user_id' => 'required|exists:users,id',
             'vehicule_id' => 'required|exists:vehicules,id',
             'reduction_pourcentage' => 'nullable|numeric|min:0|max:100',
             'date_commande' => 'required|date',
+            'statut' => 'required|string',
         ]);
 
         // Récupérer le véhicule pour calculer le prix final
         $vehicule = Vehicule::findOrFail($request->vehicule_id);
-        $reduction = $request->reduction_pourcentage ?? 0;
+        // S'assurer que reduction_pourcentage n'est jamais null
+        $reduction = $request->reduction_pourcentage !== null ? $request->reduction_pourcentage : 0;
+        $validated['reduction_pourcentage'] = $reduction;
+        
+        // Définir le statut par défaut à "terminée" si non spécifié
+        if (!isset($validated['statut']) || empty($validated['statut'])) {
+            $validated['statut'] = 'terminée';
+        }
         
         // Calculer le prix final avec la réduction
         $validated['prix_final'] = Commande::calculerPrixFinal(
@@ -80,7 +95,15 @@ class CommandeController extends Controller
         $employes = User::all();
         // Récupérer tous les véhicules pour l'édition de commande
         $vehicules = Vehicule::all();
-        return view('commandes.edit', compact('commande', 'employes', 'vehicules'));
+        // Utilisateur connecté pour vérifier les permissions
+        $utilisateurConnecte = auth()->user();
+        
+        // S'assurer que la date de commande est bien définie
+        if (empty($commande->date_commande)) {
+            $commande->date_commande = $commande->created_at->format('Y-m-d');
+        }
+        
+        return view('commandes.edit', compact('commande', 'employes', 'vehicules', 'utilisateurConnecte'));
     }
 
     /**
@@ -88,17 +111,30 @@ class CommandeController extends Controller
      */
     public function update(Request $request, Commande $commande): RedirectResponse
     {
+        // Si l'utilisateur n'est pas admin ou gérant, on force l'ID de l'utilisateur connecté
+        if (!auth()->user()->isAdmin() && auth()->user()->statut !== 'gerant' && auth()->user()->statut !== 'co-gerant') {
+            $request->merge(['user_id' => $commande->user_id]);
+        }
+        
         $validated = $request->validate([
             'nom_client' => 'required|string|max:255',
             'user_id' => 'required|exists:users,id',
             'vehicule_id' => 'required|exists:vehicules,id',
             'reduction_pourcentage' => 'nullable|numeric|min:0|max:100',
             'date_commande' => 'required|date',
+            'statut' => 'required|string',
         ]);
 
         // Récupérer le véhicule pour calculer le prix final
         $vehicule = Vehicule::findOrFail($request->vehicule_id);
-        $reduction = $request->reduction_pourcentage ?? 0;
+        // S'assurer que reduction_pourcentage n'est jamais null
+        $reduction = $request->reduction_pourcentage !== null ? $request->reduction_pourcentage : 0;
+        $validated['reduction_pourcentage'] = $reduction;
+        
+        // Définir le statut par défaut à "terminée" si non spécifié
+        if (!isset($validated['statut']) || empty($validated['statut'])) {
+            $validated['statut'] = 'terminée';
+        }
         
         // Calculer le prix final avec la réduction
         $validated['prix_final'] = Commande::calculerPrixFinal(

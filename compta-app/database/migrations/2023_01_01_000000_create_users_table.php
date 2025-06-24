@@ -11,11 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('employes', function (Blueprint $table) {
+        Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('nom');
-            $table->enum('statut', ['admin', 'employe'])->default('employe');
-            $table->decimal('commission', 5, 2); // Pourcentage avec 2 décimales
+            $table->string('prenom');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->string('statut')->default('vendeur');
+            $table->decimal('commission', 5, 2)->nullable();
+            $table->rememberToken();
             $table->timestamps();
         });
     }
@@ -25,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('employes');
+        Schema::dropIfExists('users');
     }
 };

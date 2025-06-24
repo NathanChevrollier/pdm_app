@@ -72,7 +72,7 @@
                                     @endif
                                 </td>
                                 <td>{{ $commande->nom_client }}</td>
-                                <td>{{ $commande->date_commande ? \Carbon\Carbon::parse($commande->date_commande)->format('d/m/Y') : 'N/A' }}</td>
+                                <td>{{ $commande->date_commande ? \Carbon\Carbon::parse($commande->date_commande)->format('d/m/Y H:i') : 'N/A' }}</td>
                                 <td>{{ $commande->vehicule ? number_format($commande->vehicule->prix_vente, 2, ',', ' ') : '0,00' }} €</td>
                                 <td>
                                     @if($commande->reduction_pourcentage > 0)

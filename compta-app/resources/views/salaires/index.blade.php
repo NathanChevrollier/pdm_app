@@ -72,51 +72,61 @@
     </div>
     
     <div class="col-md-4 col-sm-12 mb-3">
-        <div class="card h-100 bg-label-warning">
-            <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom-0">
-                <h5 class="mb-0">Objectifs de la semaine</h5>
-                @if(auth()->user() && in_array(auth()->user()->statut, ['admin', 'gerant', 'co-gerant', 'manager']))
-                <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#objectifsModal">
-                    <i class="bx bx-edit"></i>
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Objectifs Globaux</h5>
+                @if(auth()->user() && in_array(auth()->user()->statut, ['admin', 'gerant', 'co-gerant']))
+                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#objectifsModal">
+                    <i class="bx bx-edit me-1"></i> Définir les objectifs
                 </button>
                 @endif
             </div>
-            <div class="card-body pt-0">
-                <div class="d-flex flex-column">
-                    <div class="mb-3">
-                        <label class="form-label d-flex justify-content-between mb-1">
-                            <span>Ventes</span>
-                            <small>Objectif: {{ number_format($totaux['objectif_ventes'] ?? 100000, 2, ',', ' ') }} €</small>
-                        </label>
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-warning" role="progressbar" 
-                                style="width: {{ min(100, (($totaux['brut'] ?? 0) / ($totaux['objectif_ventes'] ?? 100000)) * 100) }}%" 
-                                aria-valuenow="{{ $totaux['brut'] ?? 0 }}" aria-valuemin="0" aria-valuemax="{{ $totaux['objectif_ventes'] ?? 100000 }}">
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-between mt-1">
-                            <small>{{ number_format($totaux['brut'] ?? 0, 2, ',', ' ') }} €</small>
-                            <small>{{ number_format(min(100, (($totaux['brut'] ?? 0) / 100000) * 100), 1) }}%</small>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label d-flex justify-content-between mb-1">
-                            <span>Bénéfice</span>
-                            <small>Objectif: {{ number_format($totaux['objectif_benefice'] ?? 30000, 2, ',', ' ') }} €</small>
-                        </label>
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-success" role="progressbar" 
-                                style="width: {{ min(100, (($totaux['benefice'] ?? 0) / ($totaux['objectif_benefice'] ?? 30000)) * 100) }}%" 
-                                aria-valuenow="{{ $totaux['benefice'] ?? 0 }}" aria-valuemin="0" aria-valuemax="{{ $totaux['objectif_benefice'] ?? 30000 }}">
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-between mt-1">
-                            <small>{{ number_format($totaux['benefice'] ?? 0, 2, ',', ' ') }} €</small>
-                            <small>{{ number_format(min(100, (($totaux['benefice'] ?? 0) / 30000) * 100), 1) }}%</small>
+            <div class="card-body">
+                <div class="alert alert-info mb-3">
+                    <div class="d-flex">
+                        <i class="bx bx-info-circle me-2 mt-1"></i>
+                        <div>
+                            <strong>Objectifs globaux de l'entreprise</strong><br>
+                            Ces objectifs servent de référence pour les objectifs personnels de chaque vendeur.
                         </div>
                     </div>
                 </div>
+                
+                <div class="mb-3">
+                    <label class="form-label d-flex justify-content-between mb-1">
+                        <span>Chiffre d'affaires</span>
+                        <small>Objectif: {{ number_format($totaux['objectif_ventes'] ?? 100000, 2, ',', ' ') }} €</small>
+                    </label>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-primary" role="progressbar" 
+                            style="width: {{ min(100, (($totaux['brut'] ?? 0) / ($totaux['objectif_ventes'] ?? 100000)) * 100) }}%" 
+                            aria-valuenow="{{ $totaux['brut'] ?? 0 }}" aria-valuemin="0" aria-valuemax="{{ $totaux['objectif_ventes'] ?? 100000 }}">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1">
+                        <small>{{ number_format($totaux['brut'] ?? 0, 2, ',', ' ') }} €</small>
+                        <small>{{ number_format(min(100, (($totaux['brut'] ?? 0) / ($totaux['objectif_ventes'] ?? 100000)) * 100), 1) }}%</small>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label d-flex justify-content-between mb-1">
+                        <span>Bénéfice</span>
+                        <small>Objectif: {{ number_format($totaux['objectif_benefice'] ?? 30000, 2, ',', ' ') }} €</small>
+                    </label>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                            style="width: {{ min(100, (($totaux['benefice'] ?? 0) / ($totaux['objectif_benefice'] ?? 30000)) * 100) }}%" 
+                            aria-valuenow="{{ $totaux['benefice'] ?? 0 }}" aria-valuemin="0" aria-valuemax="{{ $totaux['objectif_benefice'] ?? 30000 }}">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1">
+                        <small>{{ number_format($totaux['benefice'] ?? 0, 2, ',', ' ') }} €</small>
+                        <small>{{ number_format(min(100, (($totaux['benefice'] ?? 0) / ($totaux['objectif_benefice'] ?? 30000)) * 100), 1) }}%</small>
+                    </div>
+                </div>
+                
+                <!-- Les objectifs de véhicules vendus et commissions ont été supprimés -->
             </div>
         </div>
     </div>
@@ -127,24 +137,29 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="objectifsModalLabel">Définir les objectifs</h5>
+                <h5 class="modal-title" id="objectifsModalLabel">Définir les objectifs globaux</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="{{ route('objectifs.update') }}" method="POST">
                 @csrf
                 <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="bx bx-info-circle me-1"></i>
+                        Ces objectifs globaux serviront de référence pour les objectifs personnels de chaque vendeur.
+                    </div>
                     <div class="mb-3">
-                        <label for="objectif_ventes" class="form-label">Objectif de ventes (€)</label>
+                        <label for="objectif_ventes" class="form-label">Objectif global de ventes (€)</label>
                         <input type="number" class="form-control" id="objectif_ventes" name="objectif_ventes" value="{{ $totaux['objectif_ventes'] ?? 100000 }}" step="1000" min="0">
                     </div>
                     <div class="mb-3">
-                        <label for="objectif_benefice" class="form-label">Objectif de bénéfice (€)</label>
+                        <label for="objectif_benefice" class="form-label">Objectif global de bénéfice (€)</label>
                         <input type="number" class="form-control" id="objectif_benefice" name="objectif_benefice" value="{{ $totaux['objectif_benefice'] ?? 30000 }}" step="1000" min="0">
                     </div>
+                    <!-- Les champs d'objectifs de véhicules vendus et commissions ont été supprimés -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer les objectifs globaux</button>
                 </div>
             </form>
         </div>
@@ -238,8 +253,14 @@
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center">
                                         @php
+                                            // Convertir la semaine en dates de début et fin
+                                            list($year, $weekNumber) = explode('-W', $currentWeek);
+                                            $startOfWeek = \Carbon\Carbon::now()->setISODate($year, $weekNumber)->startOfWeek();
+                                            $endOfWeek = \Carbon\Carbon::now()->setISODate($year, $weekNumber)->endOfWeek();
+                                            
                                             $salaireModel = \App\Models\Salaire::where('user_id', $salaire['employe']->id)
-                                                ->where('semaine', $currentWeek)
+                                                ->where('periode_debut', $startOfWeek->format('Y-m-d'))
+                                                ->where('periode_fin', $endOfWeek->format('Y-m-d'))
                                                 ->first();
                                             $estPaye = $salaireModel && $salaireModel->est_paye;
                                         @endphp

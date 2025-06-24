@@ -125,8 +125,9 @@
                     </div>
                 </div>
                 <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-primary" style="width: {{ min(($stats['ventes'] ?? 0) / 100000 * 100, 100) }}%" role="progressbar" aria-valuenow="{{ min(($stats['ventes'] ?? 0) / 100000 * 100, 100) }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar bg-primary" style="width: {{ min(($stats['ventes'] ?? 0) / ($stats['objectif_ventes'] ?? 500000) * 100, 100) }}%" role="progressbar" aria-valuenow="{{ min(($stats['ventes'] ?? 0) / ($stats['objectif_ventes'] ?? 500000) * 100, 100) }}" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
+                <small>{{ number_format(($stats['ventes'] ?? 0), 0, ',', ' ') }} € / {{ number_format(($stats['objectif_ventes'] ?? 500000), 0, ',', ' ') }} €</small>
                 <small class="text-muted">Comparé à la semaine précédente</small>
             </div>
         </div>
@@ -155,9 +156,9 @@
                     </div>
                 </div>
                 <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-info" style="width: {{ min(($stats['nb_vehicules'] ?? 0) / 10 * 100, 100) }}%" role="progressbar" aria-valuenow="{{ min(($stats['nb_vehicules'] ?? 0) / 10 * 100, 100) }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar bg-info" style="width: {{ min(($stats['nb_vehicules'] ?? 0) / ($stats['objectif_vehicules'] ?? 20) * 100, 100) }}%" role="progressbar" aria-valuenow="{{ min(($stats['nb_vehicules'] ?? 0) / ($stats['objectif_vehicules'] ?? 20) * 100, 100) }}" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
-                <small class="text-muted">Objectif: 10 véhicules par semaine</small>
+                <small>{{ ($stats['nb_vehicules'] ?? 0) }} / {{ ($stats['objectif_vehicules'] ?? 20) }} véhicules</small>
             </div>
         </div>
     </div>
@@ -189,9 +190,9 @@
                     </div>
                 </div>
                 <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-success" style="width: {{ min(($stats['commission'] ?? 0) / 5000 * 100, 100) }}%" role="progressbar" aria-valuenow="{{ min(($stats['commission'] ?? 0) / 5000 * 100, 100) }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar bg-success" style="width: {{ min(($stats['commission'] ?? 0) / ($stats['objectif_commission'] ?? 50000) * 100, 100) }}%" role="progressbar" aria-valuenow="{{ min(($stats['commission'] ?? 0) / ($stats['objectif_commission'] ?? 50000) * 100, 100) }}" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
-                <small class="text-muted">Objectif: 5 000 € par semaine</small>
+                <small>{{ number_format(($stats['commission'] ?? 0), 0, ',', ' ') }} € / {{ number_format(($stats['objectif_commission'] ?? 50000), 0, ',', ' ') }} €</small>
             </div>
         </div>
     </div>

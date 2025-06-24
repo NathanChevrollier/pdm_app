@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             DashboardDataSeeder::class,
             ActiviteSeeder::class,
+            ObjectifSeeder::class,
             // Ajoutez d'autres seeders ici si nécessaire
         ]);
     }

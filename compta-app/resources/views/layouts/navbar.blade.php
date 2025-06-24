@@ -12,10 +12,11 @@
     <!-- Titre de l'application et informations utilisateur -->
     <div class="navbar-nav align-items-center flex-grow-1">
       <div class="nav-item d-flex align-items-center">
-        <!-- Logo et titre de l'application -->
-        <div class="me-4 d-flex align-items-center">
-          <i class="bx bx-car fs-2 text-primary me-2"></i>
-          <span class="fw-bold fs-4 text-primary">PDM</span>
+        <!-- Logo et titre de l'application avec icône de voiture de sport -->
+        <div class="me-4 d-flex align-items-center position-relative">
+          <i class="bx bxs-car fs-1 text-primary"></i>
+          <i class="bx bx-trending-up position-absolute" style="bottom: 8px; right: 8px; font-size: 1.2rem; color: #ff3e1d;"></i>
+          <span class="fw-bolder fs-3 text-primary ms-2" style="font-family: 'Montserrat', sans-serif; letter-spacing: 1px; text-transform: uppercase;">PDM</span>
         </div>
         
         @if(Auth::check())
@@ -44,6 +45,12 @@
     <!-- /Titre et Info -->
 
     <ul class="navbar-nav flex-row align-items-center">
+      <!-- Theme Toggler -->
+      <li class="nav-item me-2">
+        <a class="nav-link style-switcher-toggle hide-arrow" href="javascript:void(0);" id="theme-toggle">
+          <i class="bx bx-moon bx-sm"></i>
+        </a>
+      </li>
       <!-- User Menu -->
       <li class="nav-item navbar-dropdown dropdown-user dropdown">
         <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">

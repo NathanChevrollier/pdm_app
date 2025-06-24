@@ -13,18 +13,17 @@ return new class extends Migration
     {
         Schema::create('activites', function (Blueprint $table) {
             $table->id();
-            $table->string('titre');
-            $table->text('description')->nullable();
-            $table->string('type')->default('info'); // info, success, warning, danger
-            $table->string('icon')->default('bx-info-circle');
-            $table->string('color')->default('primary');
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('type');
+            $table->string('icon')->nullable();
+            $table->string('color')->nullable();
+            $table->string('titre')->nullable();
+            $table->string('description');
             $table->string('lien')->nullable();
-            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('ip_address')->nullable();
+            $table->text('details')->nullable();
             $table->json('metadata')->nullable();
             $table->timestamps();
-            
-            // Index pour les requêtes de recherche
-            $table->index(['type', 'created_at']);
         });
     }
 

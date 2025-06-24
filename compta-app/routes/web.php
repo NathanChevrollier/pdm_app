@@ -2,9 +2,10 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VehiculeController;
-use App\Http\Controllers\EmployeController;
+// EmployeController remplacé par UserController
 use App\Http\Controllers\CommandeController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\PointageController;
 use App\Http\Controllers\SalaireController;
 use App\Http\Controllers\StaticPageController;
 use App\Http\Controllers\UserController;
@@ -39,12 +40,17 @@ Route::middleware(['auth'])->group(function () {
 
     // Gestion des employés (uniquement pour les administrateurs)
     Route::group(['middleware' => [\App\Http\Middleware\CheckUserStatut::class . ':admin']], function () {
-        Route::resource('employes', EmployeController::class);
+        Route::resource('employes', UserController::class);
     });
     
     // Tableau de bord personnel des employés
     Route::middleware('auth')->group(function () {
-        Route::get('/mon-tableau-de-bord', [EmployeController::class, 'tableauDeBord'])->name('users.tableau-de-bord');
+        Route::get('/mon-tableau-de-bord', [UserController::class, 'tableauDeBord'])->name('users.tableau-de-bord');
+    });
+    
+    // Gestion des objectifs globaux (réservé aux gérants, co-gérants et admins)
+    Route::middleware(['auth'])->group(function () {
+        // Route supprimée pour éviter les conflits
     });
 
     // Gestion des commandes
@@ -52,18 +58,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/commandes/export', [CommandeController::class, 'export'])
         ->name('commandes.export');
 
-    // Gestion des salaires (uniquement pour les administrateurs)
-    Route::group(['middleware' => [\App\Http\Middleware\CheckUserStatut::class . ':admin']], function () {
-        Route::resource('salaires', SalaireController::class);
-        Route::get('/salaires/generer', [SalaireController::class, 'generer'])->name('salaires.generer');
-        Route::get('/salaires/export', [SalaireController::class, 'export'])->name('salaires.export');
-        Route::get('/salaires/fiches', [SalaireController::class, 'fiches'])->name('salaires.fiches');
-        Route::get('/salaires/statistiques', [SalaireController::class, 'statistiques'])->name('salaires.statistiques');
-        Route::get('/salaires/{salaire}/payer', [SalaireController::class, 'payer'])->name('salaires.payer');
-        Route::post('/salaires/marquer-paye', [SalaireController::class, 'marquerPaye'])->name('salaires.marquer-paye');
-        Route::post('/salaires/deductions-taxes', [SalaireController::class, 'updateDeductionsTaxes'])->name('salaires.deductions-taxes');
+    // Salaires
+    Route::prefix('salaires')->group(function () {
+        Route::get('/', [SalaireController::class, 'index'])->name('salaires.index');
+        Route::get('/create', [SalaireController::class, 'create'])->name('salaires.create');
+        Route::post('/', [SalaireController::class, 'store'])->name('salaires.store');
+        Route::get('/{salaire}/edit', [SalaireController::class, 'edit'])->name('salaires.edit');
+        Route::put('/{salaire}', [SalaireController::class, 'update'])->name('salaires.update');
+        Route::delete('/{salaire}', [SalaireController::class, 'destroy'])->name('salaires.destroy');
+        Route::post('/marquer-paye', [SalaireController::class, 'marquerPaye'])->name('salaires.marquer-paye');
+        Route::post('/deductions-taxes', [SalaireController::class, 'updateDeductionsTaxes'])->name('salaires.deductions-taxes');
     });
     
+    // Objectifs - Mise à jour des objectifs de la semaine
+    Route::post('/objectifs/update', [SalaireController::class, 'updateObjectifs'])->name('objectifs.update');
+
     // Gestion des utilisateurs (uniquement pour les administrateurs)
     Route::group(['middleware' => [\App\Http\Middleware\CheckUserStatut::class . ':admin']], function () {
         Route::resource('users', UserController::class);
@@ -80,7 +89,8 @@ Route::middleware(['auth'])->group(function () {
     
     // Gestion des objectifs (pour admin, gérant, co-gérant et manager)
     Route::group(['middleware' => [\App\Http\Middleware\CheckUserStatut::class . ':admin,gerant,co-gerant,manager']], function () {
-        Route::post('/objectifs/update', [ObjectifController::class, 'update'])->name('objectifs.update');
+        // Renommage de la route pour éviter les conflits
+        Route::post('/objectifs/global', [ObjectifController::class, 'update'])->name('objectifs.global.update');
         Route::post('/objectifs/user/{user}', [ObjectifController::class, 'updateUserObjectifs'])->name('objectifs.user.update');
     });
     
@@ -91,7 +101,35 @@ Route::middleware(['auth'])->group(function () {
     
     // Page de contact
     Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+    
+    // Système de badgeuse
+    Route::prefix('pointages')->group(function () {
+        Route::get('/', [PointageController::class, 'index'])->name('pointages.index');
+        Route::post('/entree', [PointageController::class, 'entree'])->name('pointages.entree');
+        Route::post('/sortie', [PointageController::class, 'sortie'])->name('pointages.sortie');
+        Route::post('/deconnexion-auto', [PointageController::class, 'deconnexionAuto'])->name('pointages.deconnexion-auto');
+        
+        // Routes pour les managers, co-gérants et gérants
+        Route::group(['middleware' => [\App\Http\Middleware\CheckUserStatut::class . ':admin,manager,gerant,co-gerant']], function () {
+            // Placer les routes spécifiques avant les routes avec paramètres génériques
+            Route::get('/stats-employe/{id}', [PointageController::class, 'getStatsEmploye'])->name('pointages.stats-employe');
+            
+            // Routes avec paramètres génériques
+            Route::get('/{id}/edit', [PointageController::class, 'edit'])->name('pointages.edit');
+            Route::put('/{id}', [PointageController::class, 'corriger'])->name('pointages.corriger');
+            Route::post('/{id}/incomplet', [PointageController::class, 'marquerIncomplet'])->name('pointages.incomplet');
+        });
+    });
 });
+
+// Route de test pour vérifier le problème de CSRF
+Route::get('/test-csrf', function () {
+    return view('test-csrf');
+});
+
+Route::post('/test-csrf-post', function () {
+    return 'CSRF test passed!';
+})->name('test-csrf-post');
 
 // Redirection des routes non trouvées vers le tableau de bord
 Route::fallback(function () {

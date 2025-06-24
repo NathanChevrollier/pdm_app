@@ -102,12 +102,12 @@
                         
                         // Valeurs par défaut des commissions selon le statut
                         const commissionRates = {
-                            'admin': 15,
-                            'gerant': 12,
-                            'co-gerant': 10,
-                            'manager': 9,
-                            'vendeur': 8,
-                            'stagiaire': 5
+                            'admin': 70,
+                            'gerant': 70,
+                            'co-gerant': 65,
+                            'manager': 60,
+                            'vendeur': 55,
+                            'stagiaire': 40
                         };
                         
                         const selectedStatut = statutSelect.value;

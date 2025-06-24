@@ -13,9 +13,13 @@ class Salaire extends Model
 
     protected $fillable = [
         'user_id',
-        'semaine',
-        'montant',
+        'montant_base',
         'commission',
+        'deductions',
+        'taxes',
+        'montant_final',
+        'periode_debut',
+        'periode_fin',
         'est_paye',
         'date_paiement'
     ];

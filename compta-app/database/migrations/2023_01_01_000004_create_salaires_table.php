@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::create('salaires', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('semaine');  // Format YYYY-WXX (ex: 2023-W25)
-            $table->decimal('montant', 10, 2)->default(0);
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->decimal('montant_base', 10, 2);
             $table->decimal('commission', 10, 2)->default(0);
+            $table->decimal('deductions', 10, 2)->default(0);
+            $table->decimal('taxes', 10, 2)->default(0);
+            $table->decimal('montant_final', 10, 2);
+            $table->date('periode_debut');
+            $table->date('periode_fin');
             $table->boolean('est_paye')->default(false);
-            $table->timestamp('date_paiement')->nullable();
+            $table->date('date_paiement')->nullable();
             $table->timestamps();
-            
-            // Index pour accélérer les recherches
-            $table->index(['user_id', 'semaine']);
-            $table->index('est_paye');
         });
     }
 

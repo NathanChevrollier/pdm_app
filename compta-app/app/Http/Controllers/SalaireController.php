@@ -394,15 +394,24 @@ class SalaireController extends Controller
             // Calculer la commission selon le taux de l'employé
             $commission = $beneficeTotal * $employe->getTauxCommission();
             
-            // Chercher si un enregistrement de salaire existe déjà pour cet employé et cette semaine
-            $salaire = Salaire::firstOrNew([
-                'user_id' => $userId,
-                'semaine' => $week
-            ]);
+            // Chercher si un enregistrement de salaire existe déjà pour cet employé et cette période
+            $salaire = Salaire::where('user_id', $userId)
+                ->where('periode_debut', $startOfWeek)
+                ->where('periode_fin', $endOfWeek)
+                ->first();
+                
+            // Si aucun salaire n'existe, en créer un nouveau
+            if (!$salaire) {
+                $salaire = new Salaire();
+                $salaire->user_id = $userId;
+                $salaire->periode_debut = $startOfWeek;
+                $salaire->periode_fin = $endOfWeek;
+            }
             
-            // Mettre à jour ou créer l'enregistrement
-            $salaire->montant = $totalVentes;
+            // Mettre à jour l'enregistrement
+            $salaire->montant_base = 0; // Salaire de base (à ajuster selon vos besoins)
             $salaire->commission = $commission;
+            $salaire->montant_final = $commission; // Montant final = commission pour l'instant
             $salaire->est_paye = true;
             $salaire->date_paiement = now();
             $salaire->save();
@@ -416,6 +425,7 @@ class SalaireController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('salaires.index')->with('error', 'Une erreur est survenue lors du marquage du salaire comme payé: ' . $e->getMessage());
         }
+    }
     
     /**
      * Mettre à jour les déductions de taxes
@@ -435,9 +445,43 @@ class SalaireController extends Controller
 
         // Stocker les déductions dans la session
         session(['deductions_taxes' => $validated['deductions_taxes']]);
+        
+        // Forcer l'enregistrement de la session pour s'assurer que les données sont disponibles immédiatement
+        session()->save();
 
         // Rediriger avec un message de succès
         return redirect()->route('salaires.index')
             ->with('success', 'Les déductions de taxes ont été mises à jour avec succès.');
+    }
+    
+    /**
+     * Mettre à jour les objectifs globaux
+     */
+    public function updateObjectifs(Request $request)
+    {
+        // Vérifier les permissions (seuls admin, gérant, co-gérant peuvent modifier les objectifs)
+        if (!auth()->user() || !in_array(auth()->user()->statut, ['admin', 'gerant', 'co-gerant'])) {
+            return redirect()->back()
+                ->with('error', 'Vous n\'avez pas les permissions nécessaires pour effectuer cette action.');
+        }
+
+        // Valider les données (suppression des champs véhicules et commissions)
+        $validated = $request->validate([
+            'objectif_ventes' => 'required|numeric|min:0',
+            'objectif_benefice' => 'required|numeric|min:0',
+        ]);
+
+        // Stocker les objectifs dans la session avec les mêmes clés que celles utilisées dans la méthode index
+        session([
+            'objectif_ventes' => $validated['objectif_ventes'],
+            'objectif_benefice' => $validated['objectif_benefice']
+        ]);
+        
+        // Forcer le flash des données de session pour s'assurer qu'elles sont disponibles immédiatement
+        session()->save();
+
+        // Rediriger avec un message de succès
+        return redirect()->route('salaires.index')
+            ->with('success', 'Les objectifs globaux ont été mis à jour avec succès.');
     }
 }

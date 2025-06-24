@@ -33,10 +33,12 @@
                             <h6 class="fw-semibold">Utilisateur:</h6>
                             <p>{{ $activite->user ? $activite->user->nom . ' ' . $activite->user->prenom : 'Système' }}</p>
                         </div>
+                        @if($activite->icon)
                         <div class="mb-3">
-                            <h6 class="fw-semibold">Module:</h6>
-                            <p>{{ $activite->module }}</p>
+                            <h6 class="fw-semibold">Icône:</h6>
+                            <p><i class="bx {{ $activite->icon }}"></i> {{ $activite->icon }}</p>
                         </div>
+                        @endif
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
@@ -63,14 +65,18 @@
                                 @endswitch
                             </p>
                         </div>
+                        @if($activite->ip_address)
                         <div class="mb-3">
                             <h6 class="fw-semibold">Adresse IP:</h6>
                             <p>{{ $activite->ip_address }}</p>
                         </div>
+                        @endif
+                        @if($activite->titre)
                         <div class="mb-3">
-                            <h6 class="fw-semibold">User Agent:</h6>
-                            <p class="text-wrap">{{ $activite->user_agent ?? 'Non disponible' }}</p>
+                            <h6 class="fw-semibold">Titre:</h6>
+                            <p>{{ $activite->titre }}</p>
                         </div>
+                        @endif
                     </div>
                 </div>
                 <div class="row">

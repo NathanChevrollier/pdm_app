@@ -6,7 +6,7 @@
           <i class="bx bxs-car-garage"></i>
         </div>
       </span>
-      <span class="app-brand-text demo menu-text fw-bolder ms-2">PDM AUTO</span>
+      <span class="app-brand-text demo menu-text ms-2" style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.9rem; letter-spacing: 0.5px; background: linear-gradient(45deg, #696cff, #8592d8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;">Premium Deluxe<br>Motorsport</span>
     </a>
 
     <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
@@ -128,6 +128,14 @@
       </a>
     </li>
     @endif
+    
+    <!-- Badgeuse -->
+    <li class="menu-item {{ request()->routeIs('pointages*') ? 'active' : '' }}">
+      <a href="{{ route('pointages.index') }}" class="menu-link">
+        <i class="menu-icon tf-icons bx bx-time"></i>
+        <div data-i18n="Basic">Badgeuse</div>
+      </a>
+    </li>
 
     <!-- Activités -->
     @if($canAccessGerantFeatures)

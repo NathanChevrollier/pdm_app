@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('commandes', function (Blueprint $table) {
             $table->id();
             $table->string('nom_client');
-            $table->foreignId('employe_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('vehicule_id')->constrained()->onDelete('cascade');
+            $table->decimal('reduction_pourcentage', 5, 2)->default(0);
+            $table->decimal('prix_final', 10, 2)->nullable();
+            $table->string('statut')->default('en_cours');
             $table->date('date_commande');
             $table->timestamps();
         });

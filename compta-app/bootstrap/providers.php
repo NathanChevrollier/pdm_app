@@ -9,4 +9,5 @@ return [
     
     // Fournisseurs personnalisés
     App\Providers\ActivityLogServiceProvider::class,
+    App\Providers\SessionServiceProvider::class, // Gestion des sessions personnalisées
 ];

@@ -34,9 +34,6 @@ class User extends Authenticatable
         'password',
         'statut',
         'commission',
-        'objectif_ventes',
-        'objectif_vehicules',
-        'objectif_commission',
     ];
 
     /**
@@ -158,17 +155,17 @@ class User extends Authenticatable
     {
         switch ($statut) {
             case 'admin':
-                return 15; // 15%
+                return 70; // 70% pour patron
             case 'gerant':
-                return 12; // 12%
+                return 70; // 70% pour patron/gérant
             case 'co-gerant':
-                return 10; // 10%
+                return 65; // 65% pour co-gérant
             case 'manager':
-                return 9; // 9%
+                return 60; // 60% pour manager
             case 'vendeur':
-                return 8; // 8%
+                return 55; // 55% pour vendeur
             case 'stagiaire':
-                return 5; // 5%
+                return 40; // 40% pour stagiaire
             default:
                 return 0;
         }

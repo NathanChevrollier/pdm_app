@@ -8,6 +8,7 @@ use App\Models\Employe;
 use App\Models\User;
 use App\Models\Vehicule;
 use App\Models\Salaire;
+use App\Models\Objectif;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -190,14 +191,15 @@ class DashboardController extends Controller
             
         // Récupération des salaires payés ce mois-ci
         $salaires_mois = Salaire::whereMonth('created_at', Carbon::now()->month)
-            ->where('est_paye', true)
+            ->where('est_paye', 1)
             ->sum('commission');
             
         // Calcul du bénéfice net (bénéfice brut - salaires)
         $benefice_total = $benefice_brut - $salaires_mois;
         
-        // Objectif de bénéfice mensuel (à définir selon les besoins de l'entreprise)
-        $objectif_benefice = 100000; // 100 000 € par exemple
+        // Récupérer les objectifs globaux ou utiliser les valeurs par défaut
+        $objectifs = Objectif::getActiveObjectifs();
+        $objectif_benefice = $objectifs->objectif_benefice;
         
         // Calcul des commissions totales pour le mois en cours
         $commissions_mois = Salaire::whereMonth('created_at', Carbon::now()->month)
@@ -239,7 +241,7 @@ class DashboardController extends Controller
             
         // Récupération des salaires payés cette semaine
         $salaires_semaine = Salaire::whereBetween('created_at', [$startOfWeek, $endOfWeek])
-            ->where('est_paye', true)
+            ->where('est_paye', 1)
             ->sum('commission');
             
         // Calcul du bénéfice net de la semaine (bénéfice brut - salaires)
@@ -263,6 +265,9 @@ class DashboardController extends Controller
             // Données financières
             'benefice_total' => $benefice_total,
             'objectif_benefice' => $objectif_benefice,
+            'objectif_ventes' => $objectifs->objectif_ventes,
+            'objectif_vehicules' => $objectifs->objectif_vehicules,
+            'objectif_commission' => $objectifs->objectif_commission,
             'benefice_semaine' => $benefice_semaine,
             'total_commissions' => $commissions_mois,
             

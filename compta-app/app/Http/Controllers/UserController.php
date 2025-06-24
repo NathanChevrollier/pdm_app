@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Commande;
+use App\Models\Objectif;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -287,5 +291,187 @@ class UserController extends Controller
 
         return redirect()->route('users.index')
                         ->with('success', 'Utilisateur supprimé avec succès.');
+    }
+    
+    /**
+     * Affiche le tableau de bord personnel de l'utilisateur connecté.
+     */
+    public function tableauDeBord(Request $request): View
+    {
+        // Récupérer l'utilisateur connecté
+        $employe = Auth::user();
+        
+        // Déterminer la période (semaine en cours par défaut)
+        $periode = $request->input('periode', 'semaine');
+        
+        // Déterminer les dates de début et fin en fonction de la période
+        $now = Carbon::now();
+        
+        switch ($periode) {
+            case 'jour':
+                $debut = $now->copy()->startOfDay();
+                $fin = $now->copy()->endOfDay();
+                break;
+            case 'mois':
+                $debut = $now->copy()->startOfMonth();
+                $fin = $now->copy()->endOfMonth();
+                break;
+            case 'annee':
+                $debut = $now->copy()->startOfYear();
+                $fin = $now->copy()->endOfYear();
+                break;
+            case 'semaine':
+            default:
+                $debut = $now->copy()->startOfWeek();
+                $fin = $now->copy()->endOfWeek();
+                break;
+        }
+        
+        // Récupérer les ventes de l'employé pour la période
+        $ventes = Commande::where(function($query) use ($employe) {
+                $query->where('user_id', $employe->id);
+            })
+            ->whereBetween('date_commande', [$debut, $fin])
+            ->with('vehicule')
+            ->get();
+        
+        // Calculer les statistiques pour la période
+        $totalVentes = $ventes->sum(function($commande) {
+            return $commande->prix_final ?? $commande->vehicule->prix_vente;
+        });
+        
+        $nbVehicules = $ventes->count();
+        
+        // Calculer le bénéfice total (prix de vente - prix d'achat)
+        $beneficeTotal = $ventes->sum(function($commande) {
+            $prixVente = $commande->prix_final ?? $commande->vehicule->prix_vente;
+            return $prixVente - $commande->vehicule->prix_achat;
+        });
+        
+        // Calculer la commission sur le bénéfice (et non sur le CA)
+        $commission = $beneficeTotal * $employe->getTauxCommission();
+        
+        // Calculer la variation par rapport à la période précédente
+        $debutPrecedent = (clone $debut)->subDays($debut->diffInDays($fin) + 1);
+        $finPrecedent = (clone $debut)->subDay();
+        
+        $ventesPrecedentes = Commande::where(function($query) use ($employe) {
+                $query->where('user_id', $employe->id);
+            })
+            ->whereBetween('date_commande', [$debutPrecedent, $finPrecedent])
+            ->with('vehicule')
+            ->get();
+        
+        $totalVentesPrecedentes = $ventesPrecedentes->sum(function($commande) {
+            return $commande->prix_final ?? $commande->vehicule->prix_vente;
+        });
+        
+        $variation = $totalVentesPrecedentes > 0 
+            ? (($totalVentes - $totalVentesPrecedentes) / $totalVentesPrecedentes) * 100 
+            : ($totalVentes > 0 ? 100 : 0);
+        
+        // Récupérer l'historique des ventes (10 dernières semaines)
+        $historiqueVentes = [];
+        $debutSemaine = Carbon::now()->startOfWeek();
+        $finSemaine = Carbon::now()->endOfWeek();
+        
+        for ($i = 0; $i < 10; $i++) {
+            $debutSemaineHisto = (clone $debutSemaine)->subWeeks($i);
+            $finSemaineHisto = (clone $finSemaine)->subWeeks($i);
+            
+            $ventesHisto = Commande::where(function($query) use ($employe) {
+                    $query->where('user_id', $employe->id);
+                })
+                ->whereBetween('date_commande', [$debutSemaineHisto, $finSemaineHisto])
+                ->with('vehicule')
+                ->get();
+                
+            $totalVentesHisto = $ventesHisto->sum(function($commande) {
+                return $commande->prix_final ?? $commande->vehicule->prix_vente;
+            });
+            
+            // Calculer le bénéfice total (prix de vente - prix d'achat)
+            $beneficeTotalHisto = $ventesHisto->sum(function($commande) {
+                $prixVente = $commande->prix_final ?? $commande->vehicule->prix_vente;
+                return $prixVente - $commande->vehicule->prix_achat;
+            });
+            
+            // Calculer la commission sur le bénéfice (et non sur le CA)
+            $commissionHisto = $beneficeTotalHisto * $employe->getTauxCommission();
+            
+            $historiqueVentes[] = [
+                'semaine' => 'S' . $debutSemaineHisto->format('W'),
+                'ventes' => $totalVentesHisto,
+                'commission' => $commissionHisto,
+                'nb_vehicules' => $ventesHisto->count(),
+                'debut' => $debutSemaineHisto->format('d/m/Y'),
+                'fin' => $finSemaineHisto->format('d/m/Y'),
+            ];
+        }
+        
+        // Récupérer l'historique des commissions (10 dernières semaines)
+        $historique = [];
+        for ($i = 0; $i < 10; $i++) {
+            $debutSemaineHisto = (clone $debutSemaine)->subWeeks($i);
+            $finSemaineHisto = (clone $finSemaine)->subWeeks($i);
+            
+            $ventesHisto = Commande::where(function($query) use ($employe) {
+                    $query->where('user_id', $employe->id);
+                })
+                ->whereBetween('date_commande', [$debutSemaineHisto, $finSemaineHisto])
+                ->with('vehicule')
+                ->get();
+                
+            if ($ventesHisto->count() > 0) {
+                $totalVentesHisto = $ventesHisto->sum(function($commande) {
+                    return $commande->prix_final ?? $commande->vehicule->prix_vente;
+                });
+                
+                // Calculer le bénéfice total (prix de vente - prix d'achat)
+                $beneficeTotalHisto = $ventesHisto->sum(function($commande) {
+                    $prixVente = $commande->prix_final ?? $commande->vehicule->prix_vente;
+                    return $prixVente - $commande->vehicule->prix_achat;
+                });
+                
+                // Calculer la commission sur le bénéfice (et non sur le CA)
+                $commissionHisto = $beneficeTotalHisto * $employe->getTauxCommission();
+                
+                $historique[] = (object) [
+                    'semaine' => 'S' . $debutSemaineHisto->format('W') . ' (' . $debutSemaineHisto->format('d/m') . ' - ' . $finSemaineHisto->format('d/m') . ')',
+                    'ventes' => $totalVentesHisto,
+                    'nb_vehicules' => $ventesHisto->count(),
+                    'commission' => $commissionHisto,
+                    'paye' => $i > 1, // Exemple: les commissions des semaines précédentes sont payées
+                ];
+            }
+        }
+        
+        // Récupérer les 5 dernières ventes
+        $dernieresVentes = Commande::where(function($query) use ($employe) {
+                $query->where('user_id', $employe->id);
+            })
+            ->with('vehicule')
+            ->orderBy('date_commande', 'desc')
+            ->limit(5)
+            ->get();
+        
+        // Récupérer les objectifs globaux
+        $objectifs = Objectif::getActiveObjectifs();
+        
+        // Préparer les statistiques à passer à la vue
+        $stats = [
+            'ventes' => $totalVentes,
+            'variation_ventes' => $variation,
+            'nb_vehicules' => $nbVehicules,
+            'benefice' => $beneficeTotal,
+            'commission' => $commission,
+            'objectif_ventes' => $objectifs->objectif_ventes,
+            'objectif_vehicules' => $objectifs->objectif_vehicules,
+            'objectif_commission' => $objectifs->objectif_commission,
+            'objectif_benefice' => $objectifs->objectif_benefice,
+            'historique' => $historiqueVentes
+        ];
+        
+        return view('users.mon-tableau-de-bord', compact('employe', 'stats', 'historique', 'ventes', 'dernieresVentes'));
     }
 }

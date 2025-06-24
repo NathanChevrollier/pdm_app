@@ -5,14 +5,14 @@
 @push('styles')
 <style>
     .selected-info {
-        margin-top: 8px;
-        padding: 8px;
+        margin-top: 10px;
+        padding: 10px;
         background-color: #f8f9fa;
         border: 1px solid #d9dee3;
-        border-radius: 0.375rem;
+        border-radius: 5px;
     }
+    
     .price-badge {
-        float: right;
         background-color: #696cff;
         color: white;
         padding: 0.25rem 0.5rem;
@@ -61,8 +61,8 @@
                         </div>
                         
                         <div class="col-md-6">
-                            <label class="form-label" for="date_commande">Date de commande</label>
-                            <input type="date" class="form-control @error('date_commande') is-invalid @enderror" id="date_commande" name="date_commande" value="{{ old('date_commande', date('Y-m-d')) }}" />
+                            <label class="form-label" for="date_commande">Date et heure de commande <span class="text-danger">*</span></label>
+                            <input type="datetime-local" class="form-control @error('date_commande') is-invalid @enderror" id="date_commande" name="date_commande" value="{{ old('date_commande', date('Y-m-d\TH:i')) }}" required />
                             @error('date_commande')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -83,7 +83,7 @@
                             <select class="form-select @error('vehicule_id') is-invalid @enderror" id="vehicule_id" name="vehicule_id" required>
                                 <option value="">Sélectionner un véhicule</option>
                                 @foreach ($vehicules as $vehicule)
-                                    <option value="{{ $vehicule->id }}" data-prix="{{ $vehicule->prix_vente }}" data-prix-format="{{ number_format($vehicule->prix_vente, 0, ',', ' ') }} €" {{ old('vehicule_id') == $vehicule->id ? 'selected' : '' }}>
+                                    <option value="{{ $vehicule->id }}" data-prix="{{ $vehicule->prix_vente }}" {{ old('vehicule_id') == $vehicule->id ? 'selected' : '' }}>
                                         {{ $vehicule->nom }}
                                     </option>
                                 @endforeach
@@ -91,27 +91,48 @@
                             @error('vehicule_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <div id="vehicule_info" class="selected-info" style="display: none;">
-                                <span id="vehicule_nom"></span>
-                                <div>
-                                    <span id="vehicule_prix_original" class="price-badge"></span>
-                                    <span id="vehicule_prix_reduit" class="discount-price" style="display: none;"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6" id="prix_container" style="display: none;">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Informations prix</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="text-muted mb-1">Prix du véhicule:</div>
+                                            <div class="h5" id="prix_vehicule">0 €</div>
+                                        </div>
+                                        <div class="col-md-6 text-end">
+                                            <div class="text-muted mb-1">Prix après réduction:</div>
+                                            <div class="h5 text-danger" id="prix_reduit">0 €</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        
                     </div>
                     
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label" for="user_id">Vendeur <span class="text-danger">*</span></label>
-                            <select class="form-select @error('user_id') is-invalid @enderror" id="user_id" name="user_id" required>
-                                <option value="">Sélectionner un vendeur</option>
-                                @foreach ($employes as $employe)
-                                    <option value="{{ $employe->id }}" {{ old('user_id') == $employe->id ? 'selected' : '' }}>
-                                        {{ $employe->getNomComplet() }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            @if($utilisateurConnecte->isAdmin() || $utilisateurConnecte->statut == 'gerant' || $utilisateurConnecte->statut == 'co-gerant')
+                                <select class="form-select @error('user_id') is-invalid @enderror" id="user_id" name="user_id" required>
+                                    <option value="">Sélectionner un vendeur</option>
+                                    @foreach ($employes as $employe)
+                                        <option value="{{ $employe->id }}" {{ old('user_id', $utilisateurConnecte->id) == $employe->id ? 'selected' : '' }}>
+                                            {{ $employe->nom }} {{ $employe->prenom }} ({{ $employe->statut }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            @else
+                                <input type="text" class="form-control" value="{{ $utilisateurConnecte->nom }} {{ $utilisateurConnecte->prenom }} ({{ $utilisateurConnecte->statut }})" readonly />
+                                <input type="hidden" name="user_id" value="{{ $utilisateurConnecte->id }}" />
+                            @endif
                             @error('user_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -123,7 +144,7 @@
                         <div class="col-md-6">
                             <label class="form-label" for="reduction_pourcentage">Réduction (%)</label>
                             <div class="input-group">
-                                <input type="number" class="form-control @error('reduction_pourcentage') is-invalid @enderror" id="reduction_pourcentage" name="reduction_pourcentage" value="{{ old('reduction_pourcentage', 0) }}" min="0" max="100" step="0.01" />
+                                <input type="number" class="form-control @error('reduction_pourcentage') is-invalid @enderror" id="reduction_pourcentage" name="reduction_pourcentage" value="{{ old('reduction_pourcentage', 0) }}" min="0" max="100" step="0.1" required />
                                 <span class="input-group-text">%</span>
                             </div>
                             @error('reduction_pourcentage')
@@ -134,11 +155,11 @@
                     
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label" for="statut">Statut</label>
-                            <select class="form-select @error('statut') is-invalid @enderror" id="statut" name="statut">
+                            <label class="form-label" for="statut">Statut <span class="text-danger">*</span></label>
+                            <select class="form-select @error('statut') is-invalid @enderror" id="statut" name="statut" required>
                                 <option value="En attente" {{ old('statut') == 'En attente' ? 'selected' : '' }}>En attente</option>
                                 <option value="En cours" {{ old('statut') == 'En cours' ? 'selected' : '' }}>En cours</option>
-                                <option value="Terminée" {{ old('statut') == 'Terminée' ? 'selected' : '' }}>Terminée</option>
+                                <option value="Terminée" {{ old('statut', 'Terminée') == 'Terminée' ? 'selected' : '' }}>Terminée</option>
                                 <option value="Annulée" {{ old('statut') == 'Annulée' ? 'selected' : '' }}>Annulée</option>
                             </select>
                             @error('statut')
@@ -162,10 +183,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Éléments DOM
     const vehiculeSelect = document.getElementById('vehicule_id');
-    const vehiculeInfo = document.getElementById('vehicule_info');
-    const vehiculeNom = document.getElementById('vehicule_nom');
-    const vehiculePrixOriginal = document.getElementById('vehicule_prix_original');
-    const vehiculePrixReduit = document.getElementById('vehicule_prix_reduit');
+    const prixContainer = document.getElementById('prix_container');
+    const prixVehicule = document.getElementById('prix_vehicule');
+    const prixReduit = document.getElementById('prix_reduit');
     const reductionInput = document.getElementById('reduction_pourcentage');
     
     const vendeurSelect = document.getElementById('user_id');
@@ -219,18 +239,25 @@ document.addEventListener('DOMContentLoaded', function() {
             const reduction = parseFloat(reductionInput.value) || 0;
             
             // Afficher le prix original
-            vehiculePrixOriginal.textContent = selectedOption.dataset.prixFormat;
+            prixVehicule.textContent = number_format(prixOriginal, 0, ',', ' ') + ' €';
             
-            // Calculer et afficher le prix réduit si une réduction est appliquée
+            // Calculer et afficher le prix réduit
+            const prixReduitValue = prixOriginal * (1 - (reduction / 100));
+            prixReduit.textContent = number_format(prixReduitValue, 0, ',', ' ') + ' €';
+            
+            // Appliquer un style différent si une réduction est appliquée
             if (reduction > 0) {
-                const prixReduit = prixOriginal * (1 - (reduction / 100));
-                vehiculePrixReduit.textContent = number_format(prixReduit, 0, ',', ' ') + ' €';
-                vehiculePrixReduit.style.display = 'inline';
-                vehiculePrixOriginal.classList.add('original-price');
+                prixVehicule.classList.add('text-decoration-line-through');
+                prixVehicule.classList.add('text-muted');
             } else {
-                vehiculePrixReduit.style.display = 'none';
-                vehiculePrixOriginal.classList.remove('original-price');
+                prixVehicule.classList.remove('text-decoration-line-through');
+                prixVehicule.classList.remove('text-muted');
             }
+            
+            // S'assurer que le conteneur de prix est visible
+            prixContainer.style.display = 'block';
+        } else {
+            prixContainer.style.display = 'none';
         }
     }
     
@@ -256,14 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Événements de changement
     vehiculeSelect.addEventListener('change', function() {
-        if (this.value) {
-            const selectedOption = this.options[this.selectedIndex];
-            vehiculeNom.textContent = selectedOption.textContent;
-            vehiculeInfo.style.display = 'block';
-            calculerPrixReduit();
-        } else {
-            vehiculeInfo.style.display = 'none';
-        }
+        calculerPrixReduit();
     });
     
     // Événement de changement pour la réduction
@@ -280,7 +300,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Déclencher les événements change pour afficher les informations si des valeurs sont déjà sélectionnées
     if (vehiculeSelect.value) {
-        vehiculeSelect.dispatchEvent(new Event('change'));
+        calculerPrixReduit();
+    } else {
+        // Si aucun véhicule n'est sélectionné, on sélectionne le premier de la liste s'il existe
+        if (vehiculeSelect.options.length > 1) {
+            vehiculeSelect.selectedIndex = 1; // Index 1 car l'index 0 est l'option vide
+            calculerPrixReduit();
+        }
     }
     
     if (vendeurSelect.value) {
