@@ -15,9 +15,9 @@ class CommandeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $commandes = Commande::with(['user', 'vehicule'])->latest()->paginate(10);
+        $commandes = Commande::with(['user', 'vehicule'])->latest()->paginate(10)->withQueryString();
         return view('commandes.index', compact('commandes'));
     }
 

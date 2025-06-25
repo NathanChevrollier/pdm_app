@@ -43,10 +43,10 @@ class UserController extends Controller
         $currentUser = auth()->user();
         $currentUserStatutLevel = User::$statutsHierarchie[$currentUser->statut] ?? 999;
         
-        // Vérifier que l'utilisateur a au moins le niveau manager (niveau 4)
-        if ($currentUserStatutLevel > 4) { // Plus grand = plus bas dans la hiérarchie
+        // Vérifier que l'utilisateur est admin ou gérant (niveaux 1 et 2)
+        if ($currentUserStatutLevel > 2) { // Plus grand = plus bas dans la hiérarchie
             return view('errors.unauthorized', [
-                'message' => 'Vous devez être au moins manager pour créer des utilisateurs.'
+                'message' => 'Vous devez être admin ou gérant pour créer des utilisateurs.'
             ]);
         }
         
@@ -75,11 +75,11 @@ class UserController extends Controller
         $requestedStatutLevel = User::$statutsHierarchie[$request->statut] ?? 999;
         $currentUserStatutLevel = User::$statutsHierarchie[$currentUser->statut] ?? 999;
         
-        // Vérifier que l'utilisateur a au moins le niveau manager (niveau 4)
-        if ($currentUserStatutLevel > 4) { // Plus grand = plus bas dans la hiérarchie
+        // Vérifier que l'utilisateur est admin ou gérant (niveaux 1 et 2)
+        if ($currentUserStatutLevel > 2) { // Plus grand = plus bas dans la hiérarchie
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Vous devez être au moins manager pour créer des utilisateurs.');
+                ->with('error', 'Vous devez être admin ou gérant pour créer des utilisateurs.');
         }
         
         // Vérifier que l'utilisateur ne crée pas un utilisateur avec un statut supérieur au sien
@@ -191,6 +191,7 @@ class UserController extends Controller
         
         // Définir les règles de validation en fonction du profil de l'utilisateur
         $validationRules = [];
+        $validated = [];
         
         // Seul l'admin peut modifier le nom, prénom et email d'un autre utilisateur
         if ($isOwnProfile || $isAdmin) {
@@ -298,6 +299,12 @@ class UserController extends Controller
      */
     public function tableauDeBord(Request $request): View
     {
+        // Si l'utilisateur est un DOJ, rediriger vers la vue personnalisée
+        $employe = auth()->user();
+        if ($employe->statut === 'doj') {
+            return view('users.doj-tableau-de-bord', compact('employe'));
+        }
+
         // Récupérer l'utilisateur connecté
         $employe = Auth::user();
         
@@ -342,14 +349,19 @@ class UserController extends Controller
         
         $nbVehicules = $ventes->count();
         
-        // Calculer le bénéfice total (prix de vente - prix d'achat)
-        $beneficeTotal = $ventes->sum(function($commande) {
+        // Calculer le bénéfice brut (prix de vente - prix d'achat)
+        $beneficeBrut = $ventes->sum(function($commande) {
             $prixVente = $commande->prix_final ?? $commande->vehicule->prix_vente;
             return $prixVente - $commande->vehicule->prix_achat;
         });
         
-        // Calculer la commission sur le bénéfice (et non sur le CA)
-        $commission = $beneficeTotal * $employe->getTauxCommission();
+        // Calculer le bénéfice net (après déductions de taxes et frais)
+        // Estimation des taxes et frais (20% du bénéfice brut)
+        $taxes = $beneficeBrut * 0.20;
+        $beneficeNet = $beneficeBrut - $taxes;
+        
+        // Calculer la commission sur le bénéfice NET (et non sur le CA ou le bénéfice brut)
+        $commission = $beneficeNet * $employe->getTauxCommission();
         
         // Calculer la variation par rapport à la période précédente
         $debutPrecedent = (clone $debut)->subDays($debut->diffInDays($fin) + 1);
@@ -390,14 +402,18 @@ class UserController extends Controller
                 return $commande->prix_final ?? $commande->vehicule->prix_vente;
             });
             
-            // Calculer le bénéfice total (prix de vente - prix d'achat)
-            $beneficeTotalHisto = $ventesHisto->sum(function($commande) {
+            // Calculer le bénéfice brut (prix de vente - prix d'achat)
+            $beneficeBrutHisto = $ventesHisto->sum(function($commande) {
                 $prixVente = $commande->prix_final ?? $commande->vehicule->prix_vente;
                 return $prixVente - $commande->vehicule->prix_achat;
             });
             
-            // Calculer la commission sur le bénéfice (et non sur le CA)
-            $commissionHisto = $beneficeTotalHisto * $employe->getTauxCommission();
+            // Calculer le bénéfice net (après déductions de taxes et frais)
+            $taxesHisto = $beneficeBrutHisto * 0.20;
+            $beneficeNetHisto = $beneficeBrutHisto - $taxesHisto;
+            
+            // Calculer la commission sur le bénéfice NET
+            $commissionHisto = $beneficeNetHisto * $employe->getTauxCommission();
             
             $historiqueVentes[] = [
                 'semaine' => 'S' . $debutSemaineHisto->format('W'),
@@ -427,14 +443,18 @@ class UserController extends Controller
                     return $commande->prix_final ?? $commande->vehicule->prix_vente;
                 });
                 
-                // Calculer le bénéfice total (prix de vente - prix d'achat)
-                $beneficeTotalHisto = $ventesHisto->sum(function($commande) {
+                // Calculer le bénéfice brut (prix de vente - prix d'achat)
+                $beneficeBrutHisto = $ventesHisto->sum(function($commande) {
                     $prixVente = $commande->prix_final ?? $commande->vehicule->prix_vente;
                     return $prixVente - $commande->vehicule->prix_achat;
                 });
                 
-                // Calculer la commission sur le bénéfice (et non sur le CA)
-                $commissionHisto = $beneficeTotalHisto * $employe->getTauxCommission();
+                // Calculer le bénéfice net (après déductions de taxes et frais)
+                $taxesHisto = $beneficeBrutHisto * 0.20;
+                $beneficeNetHisto = $beneficeBrutHisto - $taxesHisto;
+                
+                // Calculer la commission sur le bénéfice NET
+                $commissionHisto = $beneficeNetHisto * $employe->getTauxCommission();
                 
                 $historique[] = (object) [
                     'semaine' => 'S' . $debutSemaineHisto->format('W') . ' (' . $debutSemaineHisto->format('d/m') . ' - ' . $finSemaineHisto->format('d/m') . ')',
@@ -463,7 +483,9 @@ class UserController extends Controller
             'ventes' => $totalVentes,
             'variation_ventes' => $variation,
             'nb_vehicules' => $nbVehicules,
-            'benefice' => $beneficeTotal,
+            'benefice_brut' => $beneficeBrut,
+            'benefice_net' => $beneficeNet,
+            'taxes' => $taxes,
             'commission' => $commission,
             'objectif_ventes' => $objectifs->objectif_ventes,
             'objectif_benefice' => $objectifs->objectif_benefice,

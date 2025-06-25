@@ -48,19 +48,27 @@ class SalaireController extends Controller
                 return $commande->prix_final ?? $commande->vehicule->prix_vente;
             });
             
-            $beneficeTotal = $employe->commandes->sum(function($commande) {
-                // Calculer le bénéfice en utilisant le prix final (après réduction)
+            $beneficeBrut = $employe->commandes->sum(function($commande) {
+                // Calculer le bénéfice brut en utilisant le prix final (après réduction)
                 $prixVente = $commande->prix_final ?? $commande->vehicule->prix_vente;
                 return $prixVente - $commande->vehicule->prix_achat;
             });
             
-            $totalCommissions = $beneficeTotal * $employe->getTauxCommission();
+            // Calculer le bénéfice net (après déductions de taxes et frais)
+            // Estimation des taxes et frais (20% du bénéfice brut)
+            $taxes = $beneficeBrut * 0.20;
+            $beneficeNet = $beneficeBrut - $taxes;
+            
+            // Calculer la commission sur le bénéfice NET (et non sur le bénéfice brut)
+            $totalCommissions = $beneficeNet * $employe->getTauxCommission();
             
             return [
                 'employe' => $employe,
                 'nb_commandes' => $employe->commandes->count(),
                 'total_ventes' => $totalVentes,
-                'benefice_total' => $beneficeTotal,
+                'benefice_brut' => $beneficeBrut,
+                'taxes' => $taxes,
+                'benefice_net' => $beneficeNet,
                 'total_commissions' => $totalCommissions,
                 'salaire_net' => $totalCommissions // Pour l'instant, le salaire net = total des commissions
             ];
@@ -78,11 +86,13 @@ class SalaireController extends Controller
         }
         
         // Calculer les totaux
-        $beneficeTotal = $salaires->sum('benefice_total');
+        $beneficeBrut = $salaires->sum('benefice_brut');
+        $taxes = $salaires->sum('taxes');
+        $beneficeNet = $salaires->sum('benefice_net');
         $totalCommissions = $salaires->sum('total_commissions');
         
         // Calcul du bénéfice réel après déduction des commissions
-        $beneficeApresCommissions = $beneficeTotal - $totalCommissions;
+        $beneficeApresCommissions = $beneficeNet - $totalCommissions;
         
         // Récupérer les déductions de taxes depuis la session
         $deductionsTaxes = session('deductions_taxes', 0);
@@ -100,13 +110,15 @@ class SalaireController extends Controller
         
         $totaux = [
             'brut' => $salaires->sum('total_ventes'),
-            'benefice' => $beneficeTotal,
+            'benefice_brut' => $beneficeBrut,
+            'taxes_internes' => $taxes, // Taxes internes (20% du bénéfice brut)
+            'benefice_net' => $beneficeNet, // Bénéfice net après taxes internes
             'commissions' => $totalCommissions,
             'benefice_apres_commissions' => $beneficeApresCommissions,
             'taxes' => $taxes,
             'deductions_taxes' => $deductionsTaxes,
             'taxes_nettes' => $taxesNettes,
-            'benefice_net' => $beneficeNetFinal,
+            'benefice_net_final' => $beneficeNetFinal, // Bénéfice net final après commissions et taxes externes
             'net' => $totalCommissions, // Total des commissions à payer aux employés
             'objectif_ventes' => $objectifVentes,
             'objectif_benefice' => $objectifBenefice

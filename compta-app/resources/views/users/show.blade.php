@@ -109,7 +109,7 @@
                                                     @foreach($user->commandes->sortByDesc('created_at')->take(5) as $commande)
                                                         <tr>
                                                             <td>{{ $commande->reference }}</td>
-                                                            <td>{{ $commande->client_nom }}</td>
+                                                            <td>{{ $commande->nom_client }}</td>
                                                             <td>{{ $commande->date_commande->format('d/m/Y') }}</td>
                                                             <td>
                                                                 <a href="{{ route('commandes.show', $commande->id) }}" class="btn btn-sm btn-info">

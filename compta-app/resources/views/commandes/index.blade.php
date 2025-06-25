@@ -138,8 +138,8 @@
         </div>
         
         @if(isset($commandes) && method_exists($commandes, 'links'))
-            <div class="mt-3">
-                {{ $commandes->links() }}
+            <div class="mt-3 d-flex justify-content-center">
+                {{ $commandes->links('pagination::bootstrap-5') }}
             </div>
         @endif
     </div>

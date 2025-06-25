@@ -26,33 +26,37 @@
       $isManager = $currentUser->statut === 'manager';
       $isVendeur = $currentUser->statut === 'vendeur';
       $isStagiaire = $currentUser->statut === 'stagiaire';
+      $isDoj = $currentUser->statut === 'doj';
       
       // Niveaux d'accès
       $canAccessAdminFeatures = $userStatutLevel <= 1; // Admin uniquement
       $canAccessGerantFeatures = $userStatutLevel <= 2; // Admin et gérant
       $canAccessCoGerantFeatures = $userStatutLevel <= 3; // Admin, gérant et co-gérant
       $canAccessManagerFeatures = $userStatutLevel <= 4; // Admin, gérant, co-gérant et manager
-      $canAccessVendeurFeatures = $userStatutLevel <= 5; // Tous sauf stagiaire
-      $canAccessAllFeatures = true; // Tous les utilisateurs
+      $canAccessVendeurFeatures = $userStatutLevel <= 5 && !$isDoj; // Tous sauf stagiaire et doj
+      $canAccessAllFeatures = !$isDoj; // Tous les utilisateurs sauf doj
     @endphp
     
     <!-- Dashboard -->
+    @if(!$isDoj)
     <li class="menu-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
       <a href="{{ route('dashboard') }}" class="menu-link">
         <i class="menu-icon tf-icons bx bx-home-circle"></i>
         <div data-i18n="Analytics">Tableau de bord général</div>
       </a>
     </li>
+    @endif
     
     <!-- Mon profil -->
-    <li class="menu-item {{ request()->is('tableau-de-bord/personnel') || request()->routeIs('users.tableau-de-bord') ? 'active' : '' }}">
-      <a href="{{ route('users.tableau-de-bord') }}" class="menu-link">
+    <li class="menu-item {{ request()->is('tableau-de-bord/personnel') || request()->routeIs('users.tableau-de-bord') || request()->routeIs('profile.edit') ? 'active' : '' }}">
+      <a href="{{ $isDoj ? route('profile.edit') : route('users.tableau-de-bord') }}" class="menu-link">
         <i class="menu-icon tf-icons bx bx-user-check"></i>
         <div data-i18n="Analytics">Mon profil</div>
       </a>
     </li>
 
     <!-- Véhicules -->
+    @if(!$isDoj)
     <li class="menu-item {{ request()->routeIs('vehicules*') ? 'active open' : '' }}">
       <a href="javascript:void(0);" class="menu-link menu-toggle">
         <i class="menu-icon tf-icons bx bx-car"></i>
@@ -74,8 +78,10 @@
         @endif
       </ul>
     </li>
+    @endif
 
     <!-- Employés -->
+    @if(!$isDoj)
     <li class="menu-item {{ (request()->routeIs('users*') && !request()->routeIs('users.tableau-de-bord')) ? 'active open' : '' }}">
       <a href="javascript:void(0);" class="menu-link menu-toggle">
         <i class="menu-icon tf-icons bx bx-user"></i>
@@ -96,8 +102,10 @@
         @endif
       </ul>
     </li>
+    @endif
 
     <!-- Commandes -->
+    @if(!$isDoj)
     <li class="menu-item {{ request()->routeIs('commandes*') ? 'active open' : '' }}">
       <a href="javascript:void(0)" class="menu-link menu-toggle">
         <i class="menu-icon tf-icons bx bx-shopping-bag"></i>
@@ -118,9 +126,10 @@
         @endif
       </ul>
     </li>
+    @endif
 
     <!-- Salaires -->
-    @if($canAccessCoGerantFeatures)
+    @if($canAccessCoGerantFeatures || $isDoj)
     <li class="menu-item {{ request()->routeIs('salaires*') ? 'active' : '' }}">
       <a href="{{ route('salaires.index') }}" class="menu-link">
         <i class="menu-icon tf-icons bx bx-dollar"></i>
@@ -130,12 +139,14 @@
     @endif
     
     <!-- Badgeuse -->
+    @if(!$isDoj)
     <li class="menu-item {{ request()->routeIs('pointages*') ? 'active' : '' }}">
       <a href="{{ route('pointages.index') }}" class="menu-link">
         <i class="menu-icon tf-icons bx bx-time"></i>
         <div data-i18n="Basic">Badgeuse</div>
       </a>
     </li>
+    @endif
 
     <!-- Activités -->
     @if($canAccessGerantFeatures)

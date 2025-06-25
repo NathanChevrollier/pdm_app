@@ -66,7 +66,8 @@ class User extends Authenticatable
         'co-gerant' => 3,    // Co-gérant
         'manager' => 4,      // Manager
         'vendeur' => 5,      // Vendeur
-        'stagiaire' => 6     // Stagiaire (niveau le plus bas)
+        'doj' => 6,          // DOJ (Department of Justice)
+        'stagiaire' => 7     // Stagiaire (niveau le plus bas)
     ];
     
     /**
@@ -129,7 +130,7 @@ class User extends Authenticatable
         // Sinon, déterminer le taux en fonction du statut
         switch ($this->statut) {
             case 'admin':
-                return 1; // 65% (Patron)
+                return 1; // 100% (Patron)
             case 'gerant':
                 return 0.65; // 65% (Patron)
             case 'co-gerant':
@@ -138,6 +139,8 @@ class User extends Authenticatable
                 return 0.60; // 60% (Manager)
             case 'vendeur':
                 return 0.55; // 55% (Vendeur)
+            case 'doj':
+                return 0; // 0% (DOJ) - Les utilisateurs DOJ n'ont pas de commission
             case 'stagiaire':
                 return 0.40; // 40% (Recrue)
             default:

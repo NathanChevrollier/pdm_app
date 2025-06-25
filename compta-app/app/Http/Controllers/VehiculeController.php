@@ -12,10 +12,20 @@ class VehiculeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $vehicules = Vehicule::latest()->paginate(10);
-        return view('vehicules.index', compact('vehicules'));
+        $search = $request->input('search');
+        
+        $query = Vehicule::latest();
+        
+        // Filtrer par recherche si une valeur est fournie
+        if ($search) {
+            $query->where('nom', 'like', "%{$search}%");
+        }
+        
+        $vehicules = $query->paginate(10)->withQueryString();
+        
+        return view('vehicules.index', compact('vehicules', 'search'));
     }
 
     /**

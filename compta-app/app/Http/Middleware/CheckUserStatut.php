@@ -33,22 +33,18 @@ class CheckUserStatut
         
         // Vérifier si l'utilisateur a le statut requis
         if (!empty($statuts)) {
-            // Convertir les anciens statuts (Patron, Co-patron) vers les nouveaux (admin, employe) si nécessaire
-            $mappedStatuts = array_map(function($statut) {
-                switch($statut) {
-                    case 'Patron':
-                    case 'Co-patron':
-                    case 'Manager':
-                        return 'admin';
-                    case 'Vendeur':
-                    case 'Recrue':
-                        return 'employe';
-                    default:
-                        return $statut;
-                }
-            }, $statuts);
+            // Convertir les statuts pour la vérification
+            $userStatut = strtolower($user->statut);
             
-            if (!in_array($user->statut, $mappedStatuts)) {
+            // Normaliser les statuts pour la comparaison
+            $normalizedStatuts = array_map('strtolower', $statuts);
+            
+            // Mappings spécifiques pour la rétrocompatibilité
+            if ($userStatut === 'patron') $userStatut = 'admin';
+            if ($userStatut === 'co-patron') $userStatut = 'co-gerant';
+            if ($userStatut === 'recrue') $userStatut = 'stagiaire';
+            
+            if (!in_array($userStatut, $normalizedStatuts)) {
                 return redirect()->route('dashboard')->with('error', 'Vous n\'avez pas les droits nécessaires pour accéder à cette page.');
             }
         }

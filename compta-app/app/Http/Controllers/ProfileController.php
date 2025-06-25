@@ -18,8 +18,26 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        $user = $request->user();
+        
+        // Si l'utilisateur est un DOJ, afficher une vue spécifique
+        if ($user->statut === 'doj') {
+            // Vérifier si on demande la modification du profil
+            if ($request->has('edit')) {
+                return view('profile.doj-edit', [
+                    'user' => $user,
+                ]);
+            }
+            
+            // Sinon, afficher la vue de consultation du profil DOJ
+            return view('users.doj-tableau-de-bord', [
+                'employe' => $user,
+            ]);
+        }
+        
+        // Sinon, afficher la vue standard
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
         ]);
     }
 
@@ -36,6 +54,11 @@ class ProfileController extends Controller
             'nom' => $data['nom'],
             'email' => $data['email'],
         ]);
+        
+        // Si le prénom est fourni, le mettre à jour
+        if (isset($data['prenom'])) {
+            $user->prenom = $data['prenom'];
+        }
 
         // Mise à jour du mot de passe si fourni
         if (isset($data['password']) && $data['password']) {
@@ -49,6 +72,13 @@ class ProfileController extends Controller
 
         $user->save();
 
+        // Redirection spécifique pour les utilisateurs DOJ
+        if ($user->statut === 'doj') {
+            return redirect()->route('users.tableau-de-bord')
+                ->with('success', 'Votre profil a été mis à jour avec succès.');
+        }
+
+        // Redirection standard pour les autres utilisateurs
         return redirect()->route('profile.edit')
             ->with('success', 'Votre profil a été mis à jour avec succès.');
     }

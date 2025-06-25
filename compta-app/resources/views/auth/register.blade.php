@@ -21,7 +21,11 @@
             <div>
                 <x-input-label for="statut" :value="__('Rôle')" />
                 <select id="statut" name="statut" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                    <option value="employe" {{ old('statut') == 'employe' ? 'selected' : '' }}>Employé</option>
+                    <option value="stagiaire" {{ old('statut') == 'stagiaire' ? 'selected' : '' }}>Stagiaire</option>
+                    <option value="vendeur" {{ old('statut') == 'vendeur' ? 'selected' : '' }}>Vendeur</option>
+                    <option value="manager" {{ old('statut') == 'manager' ? 'selected' : '' }}>Manager</option>
+                    <option value="co-gerant" {{ old('statut') == 'co-gerant' ? 'selected' : '' }}>Co-gérant</option>
+                    <option value="gerant" {{ old('statut') == 'gerant' ? 'selected' : '' }}>Gérant</option>
                     <option value="admin" {{ old('statut') == 'admin' ? 'selected' : '' }}>Administrateur</option>
                 </select>
                 <x-input-error :messages="$errors->get('statut')" class="mt-2" />
@@ -35,8 +39,8 @@
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Pourcentage de commission pour les ventes (entre 0 et 100)</p>
             </div>
         @else
-            <!-- Champ caché pour les nouveaux utilisateurs (par défaut employé) -->
-            <input type="hidden" name="statut" value="employe">
+            <!-- Champ caché pour les nouveaux utilisateurs (par défaut stagiaire) -->
+            <input type="hidden" name="statut" value="stagiaire">
             
             <!-- Commission pour les nouveaux employés -->
             <div>
@@ -68,7 +72,7 @@
 
         <div class="flex items-center justify-between mt-6">
             @if(auth()->check())
-                <a href="{{ route('employes.index') }}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                <a href="{{ route('users.index') }}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
                     {{ __('Retour à la liste') }}
                 </a>
             @else

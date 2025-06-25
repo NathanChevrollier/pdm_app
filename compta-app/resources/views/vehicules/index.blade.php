@@ -22,8 +22,22 @@
             </div>
         @endif
 
+        <!-- Barre de recherche -->
+        <div class="mb-4">
+            <form action="{{ route('vehicules.index') }}" method="GET" class="d-flex gap-2">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bx bx-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Rechercher un véhicule..." name="search" value="{{ $search ?? '' }}">
+                </div>
+                <button type="submit" class="btn btn-primary">Rechercher</button>
+                @if(isset($search) && $search)
+                    <a href="{{ route('vehicules.index') }}" class="btn btn-outline-secondary">Réinitialiser</a>
+                @endif
+            </form>
+        </div>
+
         <div class="table-responsive text-nowrap">
-            <table class="table table-striped table-hover">
+            <table class="table table-striped table-hover align-middle">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -41,11 +55,11 @@
                                 <td>{{ $vehicule->nom ?? 'Non spécifié' }}</td>
                                 <td>{{ number_format($vehicule->prix_achat ?? 0, 2, ',', ' ') }} €</td>
                                 <td>{{ number_format($vehicule->prix_vente ?? 0, 2, ',', ' ') }} €</td>
-                                <td class="d-flex gap-1">
-                                    <a href="{{ route('vehicules.show', $vehicule->id) }}" class="btn btn-sm btn-icon btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Voir">
+                                <td>
+                                    <a href="{{ route('vehicules.show', $vehicule->id) }}" class="btn btn-sm btn-icon btn-outline-primary me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Voir">
                                         <i class="bx bx-show-alt"></i>
                                     </a>
-                                    <a href="{{ route('vehicules.edit', $vehicule->id) }}" class="btn btn-sm btn-icon btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Modifier">
+                                    <a href="{{ route('vehicules.edit', $vehicule->id) }}" class="btn btn-sm btn-icon btn-outline-info me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Modifier">
                                         <i class="bx bx-edit-alt"></i>
                                     </a>
                                     <form action="{{ route('vehicules.destroy', $vehicule->id) }}" method="POST" class="d-inline">

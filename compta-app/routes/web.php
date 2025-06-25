@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VehiculeController;
-// EmployeController remplacé par UserController
 use App\Http\Controllers\CommandeController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PointageController;
@@ -26,41 +25,46 @@ require __DIR__.'/auth.php';
 
 // Routes protégées par authentification
 Route::middleware(['auth'])->group(function () {
-    // Tableau de bord
-    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
-        ->name('dashboard');
-
-    // Profil utilisateur
+    // Routes accessibles à tous les utilisateurs authentifiés
+    Route::get('/salaires', [SalaireController::class, 'index'])->name('salaires.index');
+    
+    // Profil utilisateur - accessible à tous les utilisateurs authentifiés
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // Appliquer le middleware de redirection pour les utilisateurs doj
+    Route::middleware([\App\Http\Middleware\RedirectDojUsers::class])->group(function () {
+        
+        // Routes accessibles uniquement aux utilisateurs qui ne sont pas doj
+        Route::middleware([\App\Http\Middleware\CheckUserStatut::class . ':admin,gerant,co-gerant,manager,vendeur,stagiaire'])->group(function () {
+            // Tableau de bord
+            Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
+                ->name('dashboard');
 
-    // Gestion des véhicules
-    Route::resource('vehicules', VehiculeController::class);
-
-    // Gestion des employés (uniquement pour les administrateurs)
-    Route::group(['middleware' => [\App\Http\Middleware\CheckUserStatut::class . ':admin']], function () {
-        Route::resource('employes', UserController::class);
+            // Gestion des véhicules
+            Route::resource('vehicules', VehiculeController::class);
+            
+            // Gestion des commandes
+            Route::resource('commandes', CommandeController::class);
+            Route::get('/commandes/export', [CommandeController::class, 'export'])
+                ->name('commandes.export');
+                
+            // Tableau de bord personnel des employés
+            Route::get('/mon-tableau-de-bord', [UserController::class, 'tableauDeBord'])->name('users.tableau-de-bord');
+            
+            // Objectifs - Mise à jour des objectifs de la semaine
+            Route::post('/objectifs/update', [SalaireController::class, 'updateObjectifs'])->name('objectifs.update');
+        });
     });
     
-    // Tableau de bord personnel des employés
-    Route::middleware('auth')->group(function () {
-        Route::get('/mon-tableau-de-bord', [UserController::class, 'tableauDeBord'])->name('users.tableau-de-bord');
+    // Gestion des utilisateurs (pour les administrateurs et gérants)
+    Route::group(['middleware' => [\App\Http\Middleware\CheckUserStatut::class . ':admin,gerant']], function () {
+        Route::resource('users', UserController::class);
     });
     
-    // Gestion des objectifs globaux (réservé aux gérants, co-gérants et admins)
-    Route::middleware(['auth'])->group(function () {
-        // Route supprimée pour éviter les conflits
-    });
-
-    // Gestion des commandes
-    Route::resource('commandes', CommandeController::class);
-    Route::get('/commandes/export', [CommandeController::class, 'export'])
-        ->name('commandes.export');
-
-    // Salaires
-    Route::prefix('salaires')->group(function () {
-        Route::get('/', [SalaireController::class, 'index'])->name('salaires.index');
+    // Salaires - Actions de modification (accessibles uniquement à admin, gérant, co-gérant et manager)
+    Route::prefix('salaires')->middleware([\App\Http\Middleware\CheckUserStatut::class . ':admin,gerant,co-gerant,manager'])->group(function () {
         Route::get('/create', [SalaireController::class, 'create'])->name('salaires.create');
         Route::post('/', [SalaireController::class, 'store'])->name('salaires.store');
         Route::get('/{salaire}/edit', [SalaireController::class, 'edit'])->name('salaires.edit');
@@ -69,28 +73,16 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/marquer-paye', [SalaireController::class, 'marquerPaye'])->name('salaires.marquer-paye');
         Route::post('/deductions-taxes', [SalaireController::class, 'updateDeductionsTaxes'])->name('salaires.deductions-taxes');
     });
-    
-    // Objectifs - Mise à jour des objectifs de la semaine
-    Route::post('/objectifs/update', [SalaireController::class, 'updateObjectifs'])->name('objectifs.update');
 
     // Gestion des utilisateurs
-    // Accès à la liste et aux détails pour admin, gérant, co-gérant et manager
-    Route::group(['middleware' => [\App\Http\Middleware\CheckUserStatut::class . ':admin,gerant,co-gerant,manager']], function () {
+    // Accès à la liste et aux détails pour tous les utilisateurs sauf doj
+    Route::group(['middleware' => [\App\Http\Middleware\CheckUserStatut::class . ':admin,gerant,co-gerant,manager,vendeur,stagiaire']], function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     });
     
-    // Actions sensibles réservées aux administrateurs
-    Route::group(['middleware' => [\App\Http\Middleware\CheckUserStatut::class . ':admin']], function () {
-        Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
-        Route::post('/users', [UserController::class, 'store'])->name('users.store');
-        Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
-        Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
-        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-    });
-    
-    // Journal des activités (uniquement pour les administrateurs)
-    Route::group(['middleware' => [\App\Http\Middleware\CheckUserStatut::class . ':admin']], function () {
+    // Journal des activités (pour les administrateurs et gérants)
+    Route::group(['middleware' => [\App\Http\Middleware\CheckUserStatut::class . ':admin,gerant']], function () {
         Route::get('/activites', [\App\Http\Controllers\ActiviteController::class, 'index'])->name('activites.index');
         Route::get('/activites/export', [\App\Http\Controllers\ActiviteController::class, 'export'])->name('activites.export');
         Route::get('/activites/clear', [\App\Http\Controllers\ActiviteController::class, 'clear'])->name('activites.clear');

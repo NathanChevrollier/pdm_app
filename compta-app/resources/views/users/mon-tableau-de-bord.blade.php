@@ -133,19 +133,19 @@
         </div>
     </div>
     
-    <!-- Bénéfices globaux -->
+    <!-- Ma commission -->
     <div class="col-md-4 mb-4">
         <div class="card h-100">
             <div class="card-header d-flex align-items-center justify-content-between pb-0">
                 <div class="card-title mb-0">
-                    <h5 class="m-0 me-2">Bénéfices globaux</h5>
-                    <small class="text-muted">Objectif global entreprise</small>
+                    <h5 class="m-0 me-2">Ma commission</h5>
+                    <small class="text-muted">Rémunération variable</small>
                 </div>
             </div>
             <div class="card-body pt-3">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex flex-column align-items-start gap-1">
-                        <h2 class="mb-0">{{ number_format($stats['benefice'] ?? 0, 2, ',', ' ') }} €</h2>
+                        <h2 class="mb-0">{{ number_format($stats['commission'] ?? 0, 2, ',', ' ') }} €</h2>
                     </div>
                     <div class="avatar">
                         <div class="avatar-initial rounded bg-label-success">
@@ -154,10 +154,10 @@
                     </div>
                 </div>
                 <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-success" style="width: {{ min(($stats['benefice'] ?? 0) / ($stats['objectif_benefice'] ?? 100000) * 100, 100) }}%" role="progressbar" aria-valuenow="{{ min(($stats['benefice'] ?? 0) / ($stats['objectif_benefice'] ?? 100000) * 100, 100) }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar bg-success" style="width: {{ min(($stats['commission'] ?? 0) / 5000 * 100, 100) }}%" role="progressbar" aria-valuenow="{{ min(($stats['commission'] ?? 0) / 5000 * 100, 100) }}" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
-                <small>{{ number_format(($stats['benefice'] ?? 0), 0, ',', ' ') }} € / {{ number_format(($stats['objectif_benefice'] ?? 100000), 0, ',', ' ') }} € (objectif global)</small>
-                <small class="text-muted">Contribution aux objectifs de l'entreprise</small>
+                <small>{{ number_format(($stats['commission'] ?? 0), 0, ',', ' ') }} € / 5 000 € (objectif commission)</small>
+                <small class="text-muted">Taux: {{ number_format($employe->getTauxCommission() * 100, 1) }}% sur le bénéfice net</small>
             </div>
         </div>
     </div>

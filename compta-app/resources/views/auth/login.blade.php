@@ -1,9 +1,21 @@
 <x-guest-layout>
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
-
+    
+    <!-- Logo Premium Deluxe Motorsport -->
+    <div class="app-brand justify-content-center mb-4">
+        <a href="{{ route('login') }}" class="app-brand-link gap-2">
+            <span class="app-brand-logo demo">
+                <div style="font-size: 3rem; color: #696cff;">
+                    <i class="bx bxs-car-garage"></i>
+                </div>
+            </span>
+            <span class="app-brand-text demo text-body" style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1.5rem; letter-spacing: 0.5px; background: linear-gradient(45deg, #696cff, #8592d8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;">Premium Deluxe<br>Motorsport</span>
+        </a>
+    </div>
+    
     <div class="text-center mb-4">
-        <h1 class="fs-2 fw-bold mb-2">Connexion à l'espace employé</h1>
+        <h1 class="fs-3 fw-bold mb-2">Connexion à l'espace employé</h1>
         <p class="text-muted">
             Accédez à votre tableau de bord de gestion des ventes
         </p>
@@ -35,11 +47,6 @@
         <div class="mb-3">
             <div class="d-flex justify-content-between align-items-center">
                 <x-input-label for="password" :value="__('Mot de passe')" />
-                @if (Route::has('password.request'))
-                    <a class="small text-primary" href="{{ route('password.request') }}">
-                        {{ __('Mot de passe oublié ?') }}
-                    </a>
-                @endif
             </div>
             <div>
                 <x-text-input 
@@ -76,12 +83,5 @@
         </div>
     </form>
 
-    <div class="mt-4 text-center">
-        <p class="text-muted small">
-            Pas encore de compte ?
-            <a href="{{ route('register') }}" class="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300">
-                {{ __('Créer un compte') }}
-            </a>
-        </p>
-    </div>
+    <!-- Le lien vers la page d'inscription a été supprimé intentionnellement -->
 </x-guest-layout>

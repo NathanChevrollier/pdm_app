@@ -30,7 +30,7 @@
         @endif
 
         <div class="table-responsive text-nowrap">
-            <table class="table table-striped table-hover">
+            <table class="table table-striped table-hover align-middle">
                 <thead>
                     <tr>
                         @if(auth()->user()->isAdmin())
@@ -92,17 +92,17 @@
                                         <span class="badge bg-label-secondary">{{ number_format($user->getTauxCommission() * 100, 1) }} % (défaut)</span>
                                     @endif
                                 </td>
-                                <td class="d-flex gap-1">
-                                    <a href="{{ route('users.show', $user->id) }}" class="btn btn-sm btn-icon btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Voir">
+                                <td>
+                                    <a href="{{ route('users.show', $user->id) }}" class="btn btn-sm btn-icon btn-outline-primary me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Voir">
                                         <i class="bx bx-show-alt"></i>
                                     </a>
                                     
                                     @if(auth()->user()->hasHigherOrEqualStatutThan($user) || auth()->user()->id == $user->id)
-                                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-icon btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Modifier">
+                                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-icon btn-outline-info me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Modifier">
                                             <i class="bx bx-edit-alt"></i>
                                         </a>
                                     @else
-                                        <button type="button" class="btn btn-sm btn-icon btn-outline-secondary" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Modifier (non autorisé)">
+                                        <button type="button" class="btn btn-sm btn-icon btn-outline-secondary me-1" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Modifier (non autorisé)">
                                             <i class="bx bx-edit-alt"></i>
                                         </button>
                                     @endif

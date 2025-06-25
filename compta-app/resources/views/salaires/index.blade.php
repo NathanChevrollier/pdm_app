@@ -28,7 +28,7 @@
         <div class="card h-100 bg-label-success">
             <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom-0">
                 <h5 class="mb-0">Bénéfice & Taxes</h5>
-                @if(auth()->user() && in_array(auth()->user()->statut, ['admin', 'gerant', 'co-gerant']))
+                @if(auth()->user() && in_array(auth()->user()->statut, ['admin', 'gerant', 'co-gerant', 'manager']))
                 <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#deductionsTaxesModal">
                     <i class="bx bx-edit"></i>
                 </button>
@@ -38,7 +38,15 @@
                 <div class="d-flex flex-column w-100">
                     <div class="d-flex justify-content-between mb-1">
                         <span>Bénéfice brut:</span>
-                        <span class="fw-semibold">{{ number_format($totaux['benefice'] ?? 0, 2, ',', ' ') }} €</span>
+                        <span class="fw-semibold">{{ number_format($totaux['benefice_brut'] ?? 0, 2, ',', ' ') }} €</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1 text-info">
+                        <span>Taxes internes (20%):</span>
+                        <span class="fw-semibold">- {{ number_format($totaux['taxes_internes'] ?? 0, 2, ',', ' ') }} €</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Bénéfice net:</span>
+                        <span class="fw-semibold">{{ number_format($totaux['benefice_net'] ?? 0, 2, ',', ' ') }} €</span>
                     </div>
                     <div class="d-flex justify-content-between mb-1 text-warning">
                         <span>Commissions:</span>
@@ -64,7 +72,7 @@
                     @endif
                     <div class="d-flex justify-content-between pt-2 border-top">
                         <span class="fw-bold">Bénéfice net final:</span>
-                        <span class="fw-bold fs-5 text-success">{{ number_format($totaux['benefice_net'] ?? 0, 2, ',', ' ') }} €</span>
+                        <span class="fw-bold fs-5 text-success">{{ number_format($totaux['benefice_net_final'] ?? 0, 2, ',', ' ') }} €</span>
                     </div>
                 </div>
             </div>
@@ -75,7 +83,7 @@
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Objectifs Globaux</h5>
-                @if(auth()->user() && in_array(auth()->user()->statut, ['admin', 'gerant', 'co-gerant']))
+                @if(auth()->user() && in_array(auth()->user()->statut, ['admin', 'gerant', 'co-gerant', 'manager']))
                 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#objectifsModal">
                     <i class="bx bx-edit me-1"></i> Définir les objectifs
                 </button>
@@ -203,7 +211,8 @@
                         <th>Vendeur</th>
                         <th class="text-center">Ventes</th>
                         <th class="text-end">Total ventes</th>
-                        <th class="text-end">Bénéfice</th>
+                        <th class="text-end">Bénéfice brut</th>
+                        <th class="text-end">Bénéfice net</th>
                         <th class="text-end">Commission</th>
                         <th class="text-center">Actions</th>
                     </tr>
@@ -213,7 +222,8 @@
                         @foreach($salaires as $salaire)
                             @php
                                 $totalVentes = $salaire['total_ventes'];
-                                $benefice = $salaire['benefice_total'];
+                                $beneficeBrut = $salaire['benefice_brut'];
+                                $beneficeNet = $salaire['benefice_net'];
                                 $tauxCommission = $salaire['employe']->getTauxCommission();
                                 $commission = $salaire['total_commissions'];
                             @endphp
@@ -239,7 +249,8 @@
                                 </td>
                                 <td class="text-center">{{ $salaire['nb_commandes'] }}</td>
                                 <td class="text-end">{{ number_format($totalVentes, 2) }} €</td>
-                                <td class="text-end">{{ number_format($benefice, 2) }} €</td>
+                                <td class="text-end">{{ number_format($beneficeBrut, 2) }} €</td>
+                                <td class="text-end">{{ number_format($beneficeNet, 2) }} €</td>
                                 <td class="text-end">
                                     <div>
                                         <span class="fw-bold">{{ number_format($commission, 2) }} €</span>
@@ -273,15 +284,19 @@
                                                 </button>
                                             </div>
                                         @else
-                                            <form action="{{ route('salaires.marquer-paye') }}" method="POST" class="d-inline">
-                                                @csrf
-                                                <input type="hidden" name="user_id" value="{{ $salaire['employe']->id }}">
-                                                <input type="hidden" name="week" value="{{ $currentWeek }}">
-                                                <button type="submit" class="btn btn-sm btn-outline-success d-flex align-items-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Marquer comme payé">
-                                                    <i class="bx bx-check-circle me-1"></i>
-                                                    <span>Marquer</span>
-                                                </button>
-                                            </form>
+                                            @if(auth()->user() && auth()->user()->statut !== 'doj')
+                                                <form action="{{ route('salaires.marquer-paye') }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <input type="hidden" name="user_id" value="{{ $salaire['employe']->id }}">
+                                                    <input type="hidden" name="week" value="{{ $currentWeek }}">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success d-flex align-items-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Marquer comme payé">
+                                                        <i class="bx bx-check-circle me-1"></i>
+                                                        <span>Marquer</span>
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <span class="badge bg-label-secondary">Non payé</span>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>
@@ -334,8 +349,8 @@
                                     <h6 class="mb-0">Bénéfice total</h6>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <span class="fs-4 fw-bold">{{ isset($totaux) ? number_format($totaux['benefice'] ?? 0, 2, ',', ' ') : '0,00' }} €</span>
-                                    <span class="badge bg-success">{{ isset($totaux) && isset($totaux['brut']) && $totaux['brut'] > 0 ? number_format(($totaux['benefice'] / $totaux['brut']) * 100, 1) : '0' }}% de marge</span>
+                                    <span class="fs-4 fw-bold">{{ isset($totaux) ? number_format($totaux['benefice_net_final'] ?? 0, 2, ',', ' ') : '0,00' }} €</span>
+                                    <span class="badge bg-success">{{ isset($totaux) && isset($totaux['brut']) && $totaux['brut'] > 0 ? number_format(($totaux['benefice_net_final'] / $totaux['brut']) * 100, 1) : '0' }}% de marge</span>
                                 </div>
                             </div>
                         </div>

@@ -67,5 +67,7 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'employe.statut' => \App\Http\Middleware\CheckEmployeStatut::class,
         'user.statut' => \App\Http\Middleware\CheckUserStatut::class,
+        'restrict.doj' => \App\Http\Middleware\RestrictDojAccess::class,
+        'redirect.doj' => \App\Http\Middleware\RedirectDojUsers::class,
     ];
 }

@@ -141,23 +141,8 @@
                             <h5 class="mb-3">Véhicule</h5>
                             
                             <div class="mb-3">
-                                <div class="detail-label">Modèle</div>
-                                <div class="detail-value">{{ $commande->vehicule->marque }} {{ $commande->vehicule->modele }}</div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <div class="detail-label">Année</div>
-                                <div class="detail-value">{{ $commande->vehicule->annee }}</div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <div class="detail-label">Kilométrage</div>
-                                <div class="detail-value">{{ number_format($commande->vehicule->kilometrage, 0, ',', ' ') }} km</div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <div class="detail-label">Immatriculation</div>
-                                <div class="detail-value">{{ $commande->vehicule->immatriculation }}</div>
+                                <div class="detail-label">Nom du véhicule</div>
+                                <div class="detail-value">{{ $commande->vehicule->nom }}</div>
                             </div>
                         </div>
                     </div>
