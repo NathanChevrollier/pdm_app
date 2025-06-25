@@ -73,9 +73,20 @@ Route::middleware(['auth'])->group(function () {
     // Objectifs - Mise à jour des objectifs de la semaine
     Route::post('/objectifs/update', [SalaireController::class, 'updateObjectifs'])->name('objectifs.update');
 
-    // Gestion des utilisateurs (uniquement pour les administrateurs)
+    // Gestion des utilisateurs
+    // Accès à la liste et aux détails pour admin, gérant, co-gérant et manager
+    Route::group(['middleware' => [\App\Http\Middleware\CheckUserStatut::class . ':admin,gerant,co-gerant,manager']], function () {
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
+    });
+    
+    // Actions sensibles réservées aux administrateurs
     Route::group(['middleware' => [\App\Http\Middleware\CheckUserStatut::class . ':admin']], function () {
-        Route::resource('users', UserController::class);
+        Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+        Route::post('/users', [UserController::class, 'store'])->name('users.store');
+        Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
     
     // Journal des activités (uniquement pour les administrateurs)
