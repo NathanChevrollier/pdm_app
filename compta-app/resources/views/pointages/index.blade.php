@@ -40,7 +40,7 @@
                   <div>
                     <p class="mb-1">{{ $user->prenom }} {{ $user->nom }}</p>
                     @if($pointageEnCours)
-                      <p class="mb-1">Badgé depuis: <span class="fw-bold">{{ $pointageEnCours->heure_entree->format('H:i:s') }}</span></p>
+                      <p class="mb-1">Badgé depuis: <span class="fw-bold">{{ $pointageEnCours->heure_entree->setTimezone('Europe/Paris')->format('H:i:s') }}</span></p>
                       <p class="mb-0">Durée: <span class="fw-bold" id="duree-pointage">00h00</span></p>
                     @else
                       <p class="mb-0">Aucun pointage en cours</p>
@@ -140,9 +140,9 @@
                   <tbody>
                     @forelse($pointagesUtilisateur as $pointage)
                       <tr>
-                        <td>{{ $pointage->heure_entree->format('d/m/Y') }}</td>
-                        <td>{{ $pointage->heure_entree->format('H:i:s') }}</td>
-                        <td>{{ $pointage->heure_sortie ? $pointage->heure_sortie->format('H:i:s') : 'En cours' }}</td>
+                        <td>{{ $pointage->heure_entree->setTimezone('Europe/Paris')->format('d/m/Y') }}</td>
+                        <td>{{ $pointage->heure_entree->setTimezone('Europe/Paris')->format('H:i:s') }}</td>
+                        <td>{{ $pointage->heure_sortie ? $pointage->heure_sortie->setTimezone('Europe/Paris')->format('H:i:s') : 'En cours' }}</td>
                         <td>{{ $pointage->duree_formattee }}</td>
                         <td>
                           @if($pointage->est_en_cours)
@@ -260,8 +260,8 @@
       // Calculer la durée du pointage en cours en utilisant l'heure réelle de début
       const dureeElement = document.getElementById('duree-pointage');
       
-      // Récupérer l'heure de début du pointage depuis le serveur (format ISO)
-      const pointageStartTime = new Date('{{ $pointageEnCours->heure_entree->toIso8601String() }}');
+      // Récupérer l'heure de début du pointage depuis le serveur (format ISO avec fuseau horaire)
+      const pointageStartTime = new Date('{{ $pointageEnCours->heure_entree->setTimezone('Europe/Paris')->toIso8601String() }}');
       
       function updateDuree() {
         // Calculer la durée depuis l'heure réelle de début du pointage

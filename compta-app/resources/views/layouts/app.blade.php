@@ -69,7 +69,7 @@
     <script src="{{ asset('sneat-1.0.0/assets/js/config.js') }}"></script>
   </head>
 
-  <body>
+  <body data-has-active-pointage="{{ Auth::check() && \App\Models\Pointage::getPointageEnCours(Auth::id()) ? 'true' : 'false' }}">
     <!-- Layout wrapper -->
     <div class="layout-wrapper layout-content-navbar">
       <div class="layout-container">
@@ -126,6 +126,8 @@
     <script src="{{ asset('sneat-1.0.0/assets/vendor/libs/jquery/jquery.js') }}"></script>
     <script src="{{ asset('sneat-1.0.0/assets/vendor/libs/popper/popper.js') }}"></script>
     <script src="{{ asset('sneat-1.0.0/assets/vendor/js/bootstrap.js') }}"></script>
+    <!-- Script de déconnexion automatique -->
+    <script src="{{ asset('js/auto-deconnexion.js') }}?v={{ time() }}"></script>
     <script src="{{ asset('sneat-1.0.0/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js') }}"></script>
 
     <script src="{{ asset('sneat-1.0.0/assets/vendor/js/menu.js') }}"></script>

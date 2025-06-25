@@ -87,7 +87,7 @@
                     <div class="content-left">
                         <span class="fw-medium d-block mb-1">Véhicules</span>
                         <div class="d-flex align-items-center mt-1">
-                            <h4 class="mb-0 me-2">{{ $stats['vehicules'] ?? 0 }}</h4>
+                            <h4 class="mb-0 me-2">{{ $stats['available_vehicles'] ?? 0 }}</h4>
                         </div>
                         <small class="text-muted">Nombre total en stock</small>
                     </div>
@@ -156,17 +156,17 @@
           </div>
         </div>
         <h2 class="fw-bolder mt-2">
-          {{ isset($stats['total_commissions']) ? number_format($stats['total_commissions'], 2, ',', ' ') : '0,00' }} €
+          {{ isset($stats['benefice_total']) ? number_format($stats['benefice_total'], 2, ',', ' ') : '0,00' }} €
         </h2>
         <div class="progress progress-bar-warning mt-2" style="height: 6px">
           <div class="progress-bar bg-warning" 
                role="progressbar" 
-               style="width: {{ isset($stats['total_commissions']) && isset($stats['objectif_benefice']) && $stats['objectif_benefice'] > 0 ? min(100, ($stats['total_commissions'] / $stats['objectif_benefice']) * 100) : 0 }}%" 
-               aria-valuenow="{{ isset($stats['total_commissions']) ? $stats['total_commissions'] : '0' }}" 
+               style="width: {{ isset($stats['benefice_total']) && isset($stats['objectif_benefice']) && $stats['objectif_benefice'] > 0 ? min(100, ($stats['benefice_total'] / $stats['objectif_benefice']) * 100) : 0 }}%" 
+               aria-valuenow="{{ isset($stats['benefice_total']) ? $stats['benefice_total'] : '0' }}" 
                aria-valuemin="0" 
                aria-valuemax="{{ isset($stats['objectif_benefice']) ? $stats['objectif_benefice'] : '100000' }}"></div>
         </div>
-        <small>{{ isset($stats['total_commissions']) ? number_format($stats['total_commissions'], 0, ',', ' ') : '0' }} € / {{ isset($stats['objectif_benefice']) ? number_format($stats['objectif_benefice'], 0, ',', ' ') : '100 000' }} € (objectif global)</small>
+        <small>{{ isset($stats['benefice_total']) ? number_format($stats['benefice_total'], 0, ',', ' ') : '0' }} € / {{ isset($stats['objectif_benefice']) ? number_format($stats['objectif_benefice'], 0, ',', ' ') : '100 000' }} € (objectif global)</small>
       </div>
     </div>
   </div>

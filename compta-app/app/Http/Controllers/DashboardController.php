@@ -177,16 +177,20 @@ class DashboardController extends Controller
         $orders_change = $total_commandes_precedent > 0 ? 
             round((($total_commandes_actuel - $total_commandes_precedent) / $total_commandes_precedent) * 100) : 0;
         
-        $chiffre_affaires_actuel = Commande::sum('prix_final');
-        $chiffre_affaires_precedent = Commande::where('date_commande', '<', Carbon::now()->subMonth())
-            ->sum('prix_final');
+        $chiffre_affaires_actuel = Commande::join('vehicules', 'commandes.vehicule_id', '=', 'vehicules.id')
+            ->sum(DB::raw('COALESCE(commandes.prix_final, vehicules.prix_vente)'));
+            
+        $chiffre_affaires_precedent = Commande::join('vehicules', 'commandes.vehicule_id', '=', 'vehicules.id')
+            ->where('commandes.date_commande', '<', Carbon::now()->subMonth())
+            ->sum(DB::raw('COALESCE(commandes.prix_final, vehicules.prix_vente)'));
+            
         $revenue_change = $chiffre_affaires_precedent > 0 ? 
             round((($chiffre_affaires_actuel - $chiffre_affaires_precedent) / $chiffre_affaires_precedent) * 100) : 0;
         
         // Calcul du bénéfice brut (prix de vente - prix d'achat)
         $benefice_brut = Commande::join('vehicules', 'commandes.vehicule_id', '=', 'vehicules.id')
             ->whereMonth('commandes.date_commande', Carbon::now()->month)
-            ->selectRaw('SUM(commandes.prix_final - vehicules.prix_achat) as benefice')
+            ->selectRaw('SUM(COALESCE(commandes.prix_final, vehicules.prix_vente) - vehicules.prix_achat) as benefice')
             ->value('benefice') ?? 0;
             
         // Récupération des salaires payés ce mois-ci
@@ -268,6 +272,9 @@ class DashboardController extends Controller
             'objectif_ventes' => $objectifs->objectif_ventes,
             'benefice_semaine' => $benefice_semaine,
             'total_commissions' => $commissions_mois,
+            
+            // Top vendeur
+            'top_vendeurs' => $topSellers->isNotEmpty() ? $topSellers->first()['nom'] : 'Aucun',
             
             // Données des commandes
             'monthly_orders' => $currentMonthOrders,
