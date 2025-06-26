@@ -40,16 +40,8 @@
                         <span>Bénéfice brut:</span>
                         <span class="fw-semibold">{{ number_format($totaux['benefice_brut'] ?? 0, 2, ',', ' ') }} €</span>
                     </div>
-                    <div class="d-flex justify-content-between mb-1 text-info">
-                        <span>Taxes internes (20%):</span>
-                        <span class="fw-semibold">- {{ number_format($totaux['taxes_internes'] ?? 0, 2, ',', ' ') }} €</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-1">
-                        <span>Bénéfice net:</span>
-                        <span class="fw-semibold">{{ number_format($totaux['benefice_net'] ?? 0, 2, ',', ' ') }} €</span>
-                    </div>
                     <div class="d-flex justify-content-between mb-1 text-warning">
-                        <span>Commissions:</span>
+                        <span>Commissions (sur bénéfice brut):</span>
                         <span class="fw-semibold">- {{ number_format($totaux['commissions'] ?? 0, 2, ',', ' ') }} €</span>
                     </div>
                     <div class="d-flex justify-content-between mb-1">
@@ -212,7 +204,6 @@
                         <th class="text-center">Ventes</th>
                         <th class="text-end">Total ventes</th>
                         <th class="text-end">Bénéfice brut</th>
-                        <th class="text-end">Bénéfice net</th>
                         <th class="text-end">Commission</th>
                         <th class="text-center">Actions</th>
                     </tr>
@@ -223,7 +214,6 @@
                             @php
                                 $totalVentes = $salaire['total_ventes'];
                                 $beneficeBrut = $salaire['benefice_brut'];
-                                $beneficeNet = $salaire['benefice_net'];
                                 $tauxCommission = $salaire['employe']->getTauxCommission();
                                 $commission = $salaire['total_commissions'];
                             @endphp
@@ -250,15 +240,14 @@
                                 <td class="text-center">{{ $salaire['nb_commandes'] }}</td>
                                 <td class="text-end">{{ number_format($totalVentes, 2) }} €</td>
                                 <td class="text-end">{{ number_format($beneficeBrut, 2) }} €</td>
-                                <td class="text-end">{{ number_format($beneficeNet, 2) }} €</td>
                                 <td class="text-end">
                                     <div>
                                         <span class="fw-bold">{{ number_format($commission, 2) }} €</span>
                                     </div>
                                     @if($salaire['employe']->commission > 0)
-                                        <small class="text-muted">{{ number_format($salaire['employe']->commission, 1) }}% du bénéfice</small>
+                                        <small class="text-muted">{{ number_format($salaire['employe']->commission, 1) }}% du bénéfice brut</small>
                                     @else
-                                        <small class="text-muted">{{ number_format($tauxCommission * 100, 1) }}% du bénéfice</small>
+                                        <small class="text-muted">{{ number_format($tauxCommission * 100, 1) }}% du bénéfice brut</small>
                                     @endif
                                 </td>
                                 <td class="text-center">

@@ -17,8 +17,36 @@ class CommandeController extends Controller
      */
     public function index(Request $request): View
     {
-        $commandes = Commande::with(['user', 'vehicule'])->latest()->paginate(10)->withQueryString();
-        return view('commandes.index', compact('commandes'));
+        $query = Commande::with(['user', 'vehicule']);
+        
+        // Filtre par employé (vendeur)
+        if ($request->has('employe_id') && $request->employe_id != '') {
+            $query->where('user_id', $request->employe_id);
+        }
+        
+        // Recherche par nom de client
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where('nom_client', 'like', "%{$search}%");
+        }
+        
+        // Tri par prix
+        if ($request->has('sort_prix') && $request->sort_prix != '') {
+            if ($request->sort_prix == 'asc') {
+                $query->orderBy('prix_final', 'asc');
+            } elseif ($request->sort_prix == 'desc') {
+                $query->orderBy('prix_final', 'desc');
+            }
+        } else {
+            $query->latest(); // Par défaut, tri par date de création décroissante
+        }
+        
+        $commandes = $query->paginate(10)->withQueryString();
+        
+        // Récupérer la liste des employés pour le filtre
+        $employes = User::all();
+        
+        return view('commandes.index', compact('commandes', 'employes'));
     }
 
     /**
@@ -50,7 +78,7 @@ class CommandeController extends Controller
             'user_id' => 'required|exists:users,id',
             'vehicule_id' => 'required|exists:vehicules,id',
             'reduction_pourcentage' => 'nullable|numeric|min:0|max:100',
-            'date_commande' => 'required|date',
+            'date_commande' => 'required|date_format:Y-m-d\TH:i',
             'statut' => 'required|string',
         ]);
 
@@ -121,7 +149,7 @@ class CommandeController extends Controller
             'user_id' => 'required|exists:users,id',
             'vehicule_id' => 'required|exists:vehicules,id',
             'reduction_pourcentage' => 'nullable|numeric|min:0|max:100',
-            'date_commande' => 'required|date',
+            'date_commande' => 'required|date_format:Y-m-d\TH:i',
             'statut' => 'required|string',
         ]);
 

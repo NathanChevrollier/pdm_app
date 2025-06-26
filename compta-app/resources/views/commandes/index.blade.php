@@ -22,8 +22,43 @@
             </div>
         @endif
 
+        <!-- Filtres et recherche -->
+        <form action="{{ route('commandes.index') }}" method="GET" class="mb-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bx bx-search"></i></span>
+                        <input type="text" class="form-control" placeholder="Rechercher par nom de client" name="search" value="{{ request('search') }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="employe_id">
+                        <option value="">Tous les vendeurs</option>
+                        @foreach($employes as $employe)
+                            <option value="{{ $employe->id }}" {{ request('employe_id') == $employe->id ? 'selected' : '' }}>
+                                {{ $employe->nom }} {{ $employe->prenom }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="sort_prix">
+                        <option value="">Tri par date (défaut)</option>
+                        <option value="asc" {{ request('sort_prix') == 'asc' ? 'selected' : '' }}>Prix croissant</option>
+                        <option value="desc" {{ request('sort_prix') == 'desc' ? 'selected' : '' }}>Prix décroissant</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">Filtrer</button>
+                    <a href="{{ route('commandes.index') }}" class="btn btn-outline-secondary">
+                        <i class="bx bx-reset"></i>
+                    </a>
+                </div>
+            </div>
+        </form>
+
         <div class="table-responsive text-nowrap">
-            <table class="table table-striped table-hover">
+            <table class="table table-striped table-hover align-middle">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -72,7 +107,23 @@
                                     @endif
                                 </td>
                                 <td>{{ $commande->nom_client }}</td>
-                                <td>{{ $commande->date_commande ? \Carbon\Carbon::parse($commande->date_commande)->format('d/m/Y H:i') : 'N/A' }}</td>
+                                <td>
+                                    @php
+                                        // Vérifier si date_commande a une heure différente de 00:00
+                                        $dateCommande = \Carbon\Carbon::parse($commande->date_commande);
+                                        $heureZero = $dateCommande->format('H:i') === '00:00';
+                                        
+                                        // Si l'heure est 00:00, utiliser created_at pour l'heure tout en gardant la date de date_commande
+                                        if ($heureZero && $commande->created_at) {
+                                            $dateFinale = \Carbon\Carbon::parse($commande->date_commande)
+                                                ->setHour(\Carbon\Carbon::parse($commande->created_at)->hour)
+                                                ->setMinute(\Carbon\Carbon::parse($commande->created_at)->minute);
+                                            echo $dateFinale->format('d/m/Y H:i');
+                                        } else {
+                                            echo $commande->date_commande ? \Carbon\Carbon::parse($commande->date_commande)->format('d/m/Y H:i') : 'N/A';
+                                        }
+                                    @endphp
+                                </td>
                                 <td>{{ $commande->vehicule ? number_format($commande->vehicule->prix_vente, 2, ',', ' ') : '0,00' }} €</td>
                                 <td>
                                     @if($commande->reduction_pourcentage > 0)
@@ -111,11 +162,11 @@
                                             <span class="badge bg-label-secondary">{{ $commande->statut }}</span>
                                     @endswitch
                                 </td>
-                                <td class="d-flex gap-1">
-                                    <a href="{{ route('commandes.show', $commande->id) }}" class="btn btn-sm btn-icon btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Voir">
+                                <td>
+                                    <a href="{{ route('commandes.show', $commande->id) }}" class="btn btn-sm btn-icon btn-outline-primary me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Voir">
                                         <i class="bx bx-show-alt"></i>
                                     </a>
-                                    <a href="{{ route('commandes.edit', $commande->id) }}" class="btn btn-sm btn-icon btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Modifier">
+                                    <a href="{{ route('commandes.edit', $commande->id) }}" class="btn btn-sm btn-icon btn-outline-info me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Modifier">
                                         <i class="bx bx-edit-alt"></i>
                                     </a>
                                     <form action="{{ route('commandes.destroy', $commande->id) }}" method="POST" class="d-inline">

@@ -54,21 +54,14 @@ class SalaireController extends Controller
                 return $prixVente - $commande->vehicule->prix_achat;
             });
             
-            // Calculer le bénéfice net (après déductions de taxes et frais)
-            // Estimation des taxes et frais (20% du bénéfice brut)
-            $taxes = $beneficeBrut * 0.20;
-            $beneficeNet = $beneficeBrut - $taxes;
-            
-            // Calculer la commission sur le bénéfice NET (et non sur le bénéfice brut)
-            $totalCommissions = $beneficeNet * $employe->getTauxCommission();
+            // Calculer la commission directement sur le bénéfice BRUT
+            $totalCommissions = $beneficeBrut * $employe->getTauxCommission();
             
             return [
                 'employe' => $employe,
                 'nb_commandes' => $employe->commandes->count(),
                 'total_ventes' => $totalVentes,
                 'benefice_brut' => $beneficeBrut,
-                'taxes' => $taxes,
-                'benefice_net' => $beneficeNet,
                 'total_commissions' => $totalCommissions,
                 'salaire_net' => $totalCommissions // Pour l'instant, le salaire net = total des commissions
             ];
@@ -87,12 +80,10 @@ class SalaireController extends Controller
         
         // Calculer les totaux
         $beneficeBrut = $salaires->sum('benefice_brut');
-        $taxes = $salaires->sum('taxes');
-        $beneficeNet = $salaires->sum('benefice_net');
         $totalCommissions = $salaires->sum('total_commissions');
         
         // Calcul du bénéfice réel après déduction des commissions
-        $beneficeApresCommissions = $beneficeNet - $totalCommissions;
+        $beneficeApresCommissions = $beneficeBrut - $totalCommissions;
         
         // Récupérer les déductions de taxes depuis la session
         $deductionsTaxes = session('deductions_taxes', 0);
@@ -111,8 +102,6 @@ class SalaireController extends Controller
         $totaux = [
             'brut' => $salaires->sum('total_ventes'),
             'benefice_brut' => $beneficeBrut,
-            'taxes_internes' => $taxes, // Taxes internes (20% du bénéfice brut)
-            'benefice_net' => $beneficeNet, // Bénéfice net après taxes internes
             'commissions' => $totalCommissions,
             'benefice_apres_commissions' => $beneficeApresCommissions,
             'taxes' => $taxes,

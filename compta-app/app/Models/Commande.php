@@ -37,6 +37,17 @@ class Commande extends Model
         'prix_final' => 'decimal:2',
     ];
 
+    /**
+     * Mutateur pour s'assurer que date_commande conserve l'heure
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function setDateCommandeAttribute($value)
+    {
+        $this->attributes['date_commande'] = $value;
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

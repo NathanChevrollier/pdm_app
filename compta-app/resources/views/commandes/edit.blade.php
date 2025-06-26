@@ -92,7 +92,22 @@
                         
                         <div class="col-md-6">
                             <label class="form-label" for="date_commande">Date et heure de commande <span class="text-danger">*</span></label>
-                            <input type="datetime-local" class="form-control @error('date_commande') is-invalid @enderror" id="date_commande" name="date_commande" value="{{ old('date_commande', $commande->date_commande ? $commande->date_commande->format('Y-m-d\TH:i') : $commande->created_at->format('Y-m-d\TH:i')) }}" required />
+                            @php
+                                // Vérifier si date_commande a une heure différente de 00:00
+                                $dateCommande = \Carbon\Carbon::parse($commande->date_commande);
+                                $heureZero = $dateCommande->format('H:i') === '00:00';
+                                
+                                // Si l'heure est 00:00, utiliser created_at pour l'heure tout en gardant la date de date_commande
+                                if ($heureZero && $commande->created_at) {
+                                    $dateFinale = \Carbon\Carbon::parse($commande->date_commande)
+                                        ->setHour(\Carbon\Carbon::parse($commande->created_at)->hour)
+                                        ->setMinute(\Carbon\Carbon::parse($commande->created_at)->minute);
+                                    $dateValue = $dateFinale->format('Y-m-d\TH:i');
+                                } else {
+                                    $dateValue = $commande->date_commande ? $commande->date_commande->format('Y-m-d\TH:i') : $commande->created_at->format('Y-m-d\TH:i');
+                                }
+                            @endphp
+                            <input type="datetime-local" class="form-control @error('date_commande') is-invalid @enderror" id="date_commande" name="date_commande" value="{{ old('date_commande', $dateValue) }}" required />
                             @error('date_commande')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
