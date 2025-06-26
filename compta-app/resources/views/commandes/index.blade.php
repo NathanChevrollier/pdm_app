@@ -64,10 +64,44 @@
                         <th>#</th>
                         <th>Vendeur</th>
                         <th>Client</th>
-                        <th>Date</th>
-                        <th>Montant</th>
+                        <th>Véhicule</th>
+                        <th>
+                            <a href="{{ route('commandes.index', array_merge(request()->except(['sort_date', 'sort_prix', 'sort_prix_final']), ['sort_date' => request('sort_date') == 'asc' ? 'desc' : 'asc'])) }}" class="text-dark d-flex align-items-center">
+                                Date
+                                @if(request('sort_date') == 'asc')
+                                    <i class="bx bx-sort-up ms-1"></i>
+                                @elseif(request('sort_date') == 'desc')
+                                    <i class="bx bx-sort-down ms-1"></i>
+                                @else
+                                    <i class="bx bx-sort ms-1 text-muted"></i>
+                                @endif
+                            </a>
+                        </th>
+                        <th>
+                            <a href="{{ route('commandes.index', array_merge(request()->except(['sort_date', 'sort_prix', 'sort_prix_final']), ['sort_prix' => request('sort_prix') == 'asc' ? 'desc' : 'asc'])) }}" class="text-dark d-flex align-items-center">
+                                Montant
+                                @if(request('sort_prix') == 'asc')
+                                    <i class="bx bx-sort-up ms-1"></i>
+                                @elseif(request('sort_prix') == 'desc')
+                                    <i class="bx bx-sort-down ms-1"></i>
+                                @else
+                                    <i class="bx bx-sort ms-1 text-muted"></i>
+                                @endif
+                            </a>
+                        </th>
                         <th>Réduction</th>
-                        <th>Prix final</th>
+                        <th>
+                            <a href="{{ route('commandes.index', array_merge(request()->except(['sort_date', 'sort_prix', 'sort_prix_final']), ['sort_prix_final' => request('sort_prix_final') == 'asc' ? 'desc' : 'asc'])) }}" class="text-dark d-flex align-items-center">
+                                Prix final
+                                @if(request('sort_prix_final') == 'asc')
+                                    <i class="bx bx-sort-up ms-1"></i>
+                                @elseif(request('sort_prix_final') == 'desc')
+                                    <i class="bx bx-sort-down ms-1"></i>
+                                @else
+                                    <i class="bx bx-sort ms-1 text-muted"></i>
+                                @endif
+                            </a>
+                        </th>
                         <th>Statut</th>
                         <th>Actions</th>
                     </tr>
@@ -107,6 +141,15 @@
                                     @endif
                                 </td>
                                 <td>{{ $commande->nom_client }}</td>
+                                <td>
+                                    @if($commande->vehicule)
+                                        <div>
+                                            <span class="fw-semibold">{{ $commande->vehicule->nom }}</span>
+                                        </div>
+                                    @else
+                                        <span class="text-muted">Véhicule non disponible</span>
+                                    @endif
+                                </td>
                                 <td>
                                     @php
                                         // Vérifier si date_commande a une heure différente de 00:00

@@ -30,15 +30,49 @@ class CommandeController extends Controller
             $query->where('nom_client', 'like', "%{$search}%");
         }
         
-        // Tri par prix
-        if ($request->has('sort_prix') && $request->sort_prix != '') {
-            if ($request->sort_prix == 'asc') {
-                $query->orderBy('prix_final', 'asc');
-            } elseif ($request->sort_prix == 'desc') {
-                $query->orderBy('prix_final', 'desc');
-            }
-        } else {
-            $query->latest(); // Par défaut, tri par date de création décroissante
+        // Déterminer le type de tri actif (un seul à la fois)
+        $sortType = null;
+        $sortDirection = 'desc';
+        
+        if ($request->has('sort_date') && $request->sort_date != '') {
+            $sortType = 'date';
+            $sortDirection = $request->sort_date;
+        } elseif ($request->has('sort_prix') && $request->sort_prix != '') {
+            $sortType = 'prix';
+            $sortDirection = $request->sort_prix;
+        } elseif ($request->has('sort_prix_final') && $request->sort_prix_final != '') {
+            $sortType = 'prix_final';
+            $sortDirection = $request->sort_prix_final;
+        }
+        
+        // Appliquer le tri en fonction du type sélectionné
+        switch ($sortType) {
+            case 'date':
+                // Utiliser une sous-requête pour trier par date et heure
+                // Si l'heure de date_commande est 00:00, utiliser created_at pour l'heure
+                $query->orderByRaw("CASE 
+                    WHEN TIME(date_commande) = '00:00:00' THEN 
+                        CONCAT(DATE(date_commande), ' ', TIME(created_at)) 
+                    ELSE 
+                        date_commande 
+                    END {$sortDirection}");
+                break;
+                
+            case 'prix':
+                // Utiliser le prix du véhicule pour le tri
+                $query->join('vehicules', 'commandes.vehicule_id', '=', 'vehicules.id')
+                      ->select('commandes.*')
+                      ->orderBy('vehicules.prix_vente', $sortDirection);
+                break;
+                
+            case 'prix_final':
+                $query->orderBy('prix_final', $sortDirection);
+                break;
+                
+            default:
+                // Par défaut, tri par date de création décroissante
+                $query->latest();
+                break;
         }
         
         $commandes = $query->paginate(10)->withQueryString();
